@@ -36,23 +36,31 @@ export interface DownloadLink {
 // import { databaseStorage } from './database-storage' // DESACTIVADO - VERSIÓN LOCAL
 
 class ForumStorage {
-  private threadsKey = 'forum_threads'
-  private repliesKey = 'forum_replies'
-  private materialLinksKey = 'material_links'
+  private forumType: 'academy' | 'studio'
+  private threadsKey: string
+  private repliesKey: string
+  private materialLinksKey: string
   private useDatabase = false // VERSIÓN LOCAL ABIERTA - SIN SUPABASE
+
+  constructor(forumType: 'academy' | 'studio' = 'academy') {
+    this.forumType = forumType
+    this.threadsKey = `forum_threads_${forumType}`
+    this.repliesKey = `forum_replies_${forumType}`
+    this.materialLinksKey = `material_links_${forumType}`
+  }
 
   // Threads
   async getThreads(category?: string): Promise<ForumThread[]> {
     // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') return []
-    
+
     const threads = JSON.parse(localStorage.getItem(this.threadsKey) || '[]')
     const parsedThreads = threads.map((thread: any) => ({
       ...thread,
-      createdAt: new Date(thread.createdAt),
-      updatedAt: new Date(thread.updatedAt)
+      createdAt: thread.createdAt instanceof Date ? thread.createdAt : new Date(thread.createdAt),
+      updatedAt: thread.updatedAt instanceof Date ? thread.updatedAt : new Date(thread.updatedAt)
     }))
-    
+
     if (category) {
       return parsedThreads.filter((thread: ForumThread) => thread.category === category)
     }
@@ -101,13 +109,13 @@ class ForumStorage {
   async getReplies(threadId: string): Promise<ForumReply[]> {
     // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') return []
-    
+
     const replies = JSON.parse(localStorage.getItem(this.repliesKey) || '[]')
     return replies
       .filter((reply: any) => reply.threadId === threadId)
       .map((reply: any) => ({
         ...reply,
-        createdAt: new Date(reply.createdAt)
+        createdAt: reply.createdAt instanceof Date ? reply.createdAt : new Date(reply.createdAt)
       }))
       .sort((a: ForumReply, b: ForumReply) => a.createdAt.getTime() - b.createdAt.getTime())
   }
@@ -169,4 +177,6 @@ class ForumStorage {
   }
 }
 
-export const forumStorage = new ForumStorage()
+export const forumStorage = new ForumStorage('academy')
+export const academyForumStorage = new ForumStorage('academy')
+export const studioForumStorage = new ForumStorage('studio')

@@ -79,5 +79,5 @@ export default function AcademyForumPage() {
     { id: 'practice', name: 'Práctica', color: 'bg-orange-100 text-orange-800 border-orange-200' }
   ]
 
-  return <ForumCategoriesDashboard />
+  return <ForumCategoriesDashboard forumType="academy" />
 }

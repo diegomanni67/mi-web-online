@@ -8,8 +8,8 @@ import { FileText, Plus, X, ExternalLink, Clock, User } from "lucide-react"
 
 interface MaterialSubcategoryViewProps {
   subcategoryId: string
-  subcategoryName: string
-  subcategoryDescription: string
+  subcategoryName: string | null
+  subcategoryDescription: string | null
   onBack: () => void
   staticLinks: Array<{ name: string; url: string }>
 }

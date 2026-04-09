@@ -91,7 +91,7 @@ export default function HomePage() {
                   La comunidad más activa de aprendizaje de inglés. Chatea, participa en eventos y encuentra compañeros de estudio.
                 </p>
                 <a
-                  href="https://discord.gg/koterie"
+                  href="https://discord.gg/5EaYtrz7R7"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-2xl font-semibold hover:bg-purple-50 transition-colors"
@@ -144,7 +144,7 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Comunidad</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><Link href="#community" className="hover:text-white transition-colors">Miembros</Link></li>
-                <li><a href="https://discord.gg/koterie" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Discord</a></li>
+                <li><a href="https://discord.gg/5EaYtrz7R7" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Discord</a></li>
                 <li><Link href="/events" className="hover:text-white transition-colors">Eventos</Link></li>
               </ul>
             </div>

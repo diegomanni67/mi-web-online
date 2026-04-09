@@ -8,11 +8,11 @@ import { CreditCard, Zap, Shield, Star, ArrowRight, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const benefits = [
-  "Acceso completo a Academy y Studio",
+  "Acceso completo a Academy o Studio",
   "Seminarios exclusivos mensuales",
-  "Clases en vivo ilimitadas", 
+  "Clase en vivo de 2 horas semanal", 
   "Material de estudio descargable",
-  "Certificado de finalización",
+  "Docentes especializados",
   "Soporte personalizado 24/7"
 ]
 

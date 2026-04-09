@@ -92,7 +92,7 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-1">Foros Exclusivos</h4>
-                  <p className="text-sm text-gray-600">Acceso completo a Academy y Studio forums con contenido premium.</p>
+                  <p className="text-sm text-gray-600">Acceso completo a Academy o Studio forums con contenido premium.</p>
                 </div>
               </div>
 

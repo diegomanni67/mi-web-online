@@ -3,8 +3,9 @@
 // VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
 
 import { useState, useEffect } from "react"
-import { forumStorage, ForumThread } from "@/lib/forum-storage"
+import { academyForumStorage, studioForumStorage, ForumThread } from "@/lib/forum-storage"
 import { MessageCircle, Eye, Pin, Clock, Plus, Search } from "lucide-react"
+import { initializeDemoData, academyDemoThreads, studioDemoThreads } from "@/lib/forum-demo-data"
 
 interface ForumThreadViewProps {
   categoryId: string
@@ -12,17 +13,32 @@ interface ForumThreadViewProps {
   onBack: () => void
   onThreadClick: (threadId: string) => void
   onCreateThread: () => void
+  forumType?: 'academy' | 'studio'
 }
 
-export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClick, onCreateThread }: ForumThreadViewProps) {
+export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClick, onCreateThread, forumType = 'academy' }: ForumThreadViewProps) {
+  const forumStorage = forumType === 'academy' ? academyForumStorage : studioForumStorage
+  const demoThreads = forumType === 'academy' ? academyDemoThreads : studioDemoThreads
   const [threads, setThreads] = useState<ForumThread[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState<"latest" | "popular" | "views">("latest")
 
   useEffect(() => {
+    // Initialize demo data if localStorage is empty
+    initializeDemoData(forumType)
+
     const loadThreads = async () => {
       try {
-        const categoryThreads = await forumStorage.getThreads(categoryId)
+        let categoryThreads = await forumStorage.getThreads(categoryId)
+        console.log('Loaded threads for category:', categoryId, categoryThreads.length)
+
+        // If no threads in localStorage for this category, use demo data directly
+        if (categoryThreads.length === 0) {
+          const categoryDemoThreads = demoThreads.filter(thread => thread.category === categoryId)
+          console.log('Using demo threads for category:', categoryId, categoryDemoThreads.length)
+          categoryThreads = categoryDemoThreads
+        }
+
         let sortedThreads = [...categoryThreads]
 
         switch (sortBy) {

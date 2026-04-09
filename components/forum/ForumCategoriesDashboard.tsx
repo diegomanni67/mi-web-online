@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { 
   Film, 
@@ -21,6 +21,7 @@ import { ForumThreadView } from "./ForumThreadView"
 import { CreateThreadForm } from "./CreateThreadForm"
 import { ThreadDetail } from "./ThreadDetail"
 import { MaterialSubcategoryView } from "./MaterialSubcategoryView"
+import { initializeDemoData } from "@/lib/forum-demo-data"
 
 interface Category {
   id: string
@@ -32,8 +33,8 @@ interface Category {
   image?: string
   subcategories?: Array<{
     id: string
-    name: string
-    description: string
+    name: string | null
+    description: string | null
     downloadLinks: Array<{
       name: string
       url: string
@@ -41,11 +42,20 @@ interface Category {
   }>
 }
 
-export function ForumCategoriesDashboard() {
+interface ForumCategoriesDashboardProps {
+  forumType?: 'academy' | 'studio'
+}
+
+export function ForumCategoriesDashboard({ forumType = 'academy' }: ForumCategoriesDashboardProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [currentView, setCurrentView] = useState<'categories' | 'threads' | 'create' | 'detail'>('categories')
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Initialize demo data when component mounts
+    initializeDemoData(forumType)
+  }, [forumType])
 
   const categories: Category[] = [
     {
@@ -205,6 +215,7 @@ export function ForumCategoriesDashboard() {
         onBack={handleBackToCategories}
         onThreadClick={handleThreadClick}
         onCreateThread={handleCreateThread}
+        forumType={forumType}
       />
     )
   }
@@ -217,6 +228,7 @@ export function ForumCategoriesDashboard() {
         categoryName={selectedCategoryData?.title || ''}
         onBack={() => setCurrentView('threads')}
         onThreadCreated={handleThreadCreated}
+        forumType={forumType}
       />
     )
   }
@@ -227,6 +239,8 @@ export function ForumCategoriesDashboard() {
       <ThreadDetail
         threadId={selectedThreadId}
         onBack={handleBackToThreads}
+        categoryName={selectedCategoryData?.title || undefined}
+        forumType={forumType}
       />
     )
   }
@@ -235,8 +249,8 @@ export function ForumCategoriesDashboard() {
     return (
       <MaterialSubcategoryView
         subcategoryId={selectedSubcategory}
-        subcategoryName={selectedSubcategoryData.name}
-        subcategoryDescription={selectedSubcategoryData.description}
+        subcategoryName={selectedSubcategoryData.name ?? ''}
+        subcategoryDescription={selectedSubcategoryData.description ?? ''}
         onBack={() => setSelectedSubcategory(null)}
         staticLinks={selectedSubcategoryData.downloadLinks}
       />

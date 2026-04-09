@@ -92,7 +92,7 @@ export default function UpgradePage() {
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-yellow-300" />
-                  <span>Clases en vivo ilimitadas</span>
+                  <span>Clase en vivo de 2 horas semanal</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-yellow-300" />

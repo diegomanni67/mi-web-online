@@ -86,5 +86,5 @@ export default function StudioForumPage() {
     { id: 'advanced', name: 'Avanzado', color: 'bg-red-100 text-red-800 border-red-200' }
   ]
 
-  return <ForumCategoriesDashboard />
+  return <ForumCategoriesDashboard forumType="studio" />
 }

@@ -38,10 +38,7 @@ export function Header() {
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Comunidad</span>
             </Link>
-            <Link href="/academy-forum" className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-purple-600 text-white hover:bg-purple-700 transition-colors">
-              <span className="hidden sm:inline">Foros</span>
-            </Link>
-            
+
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

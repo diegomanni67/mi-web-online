@@ -73,7 +73,7 @@ export default function UpgradeSuccessPage() {
               </div>
               <div className="flex items-center gap-3">
                 <Crown className="w-6 h-6 text-yellow-500" />
-                <span className="text-gray-700">Clases en vivo ilimitadas</span>
+                <span className="text-gray-700">Clase en vivo de 2 horas semanal</span>
               </div>
               <div className="flex items-center gap-3">
                 <Crown className="w-6 h-6 text-yellow-500" />
