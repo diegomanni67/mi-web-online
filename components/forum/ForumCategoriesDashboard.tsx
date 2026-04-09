@@ -29,6 +29,7 @@ interface Category {
   icon: React.ReactNode
   color: string
   isMaterial?: boolean
+  image?: string
   subcategories?: Array<{
     id: string
     name: string
@@ -52,56 +53,64 @@ export function ForumCategoriesDashboard() {
       title: "Let's talk about movies, series and shows!",
       description: 'Discuss your favorite films, TV series, and shows',
       icon: <Film className="w-6 h-6" />,
-      color: 'from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30'
+      color: 'from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30',
+      image: '/images/forum/Lifetime.jpeg'
     },
     {
       id: 'music',
       title: "Let's talk about Music!",
       description: 'Share your favorite songs, artists, and musical experiences',
       icon: <Music className="w-6 h-6" />,
-      color: 'from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30'
+      color: 'from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30',
+      image: '/images/forum/Music.jpeg'
     },
     {
       id: 'travels',
       title: "Let's talk about travels!",
       description: 'Share travel stories, tips, and dream destinations',
       icon: <Plane className="w-6 h-6" />,
-      color: 'from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30'
+      color: 'from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30',
+      image: '/images/forum/Travel.jpeg'
     },
     {
       id: 'food',
       title: "Let's talk about Food & Cooking!",
       description: 'Exchange recipes, cooking tips, and food experiences',
       icon: <Utensils className="w-6 h-6" />,
-      color: 'from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30'
+      color: 'from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30',
+      image: '/images/forum/Food.jpeg'
     },
     {
       id: 'gaming',
       title: "Let's talk about Gaming & Tech!",
       description: 'Discuss video games, technology, and digital innovations',
       icon: <Gamepad2 className="w-6 h-6" />,
-      color: 'from-indigo-500/20 to-purple-500/20 hover:from-indigo-500/30 hover:to-purple-500/30'
+      color: 'from-indigo-500/20 to-purple-500/20 hover:from-indigo-500/30 hover:to-purple-500/30',
+      image: '/images/forum/Gaming.jpeg'
     },
     {
       id: 'sports',
       title: "Let's talk about Sports!",
       description: 'Share sports news, fitness tips, and game discussions',
       icon: <Trophy className="w-6 h-6" />,
-      color: 'from-yellow-500/20 to-orange-500/20 hover:from-yellow-500/30 hover:to-orange-500/30'
+      color: 'from-yellow-500/20 to-orange-500/20 hover:from-yellow-500/30 hover:to-orange-500/30',
+      image: '/images/forum/Sports.jpeg'
     },
     {
       id: 'daily-life',
       title: 'Daily Life & Random Thoughts!',
       description: 'Share everyday experiences and random thoughts',
       icon: <MessageCircle className="w-6 h-6" />,
-      color: 'from-pink-500/20 to-rose-500/20 hover:from-pink-500/30 hover:to-rose-500/30'
+      color: 'from-pink-500/20 to-rose-500/20 hover:from-pink-500/30 hover:to-rose-500/30',
+      image: '/images/forum/Music.jpeg'
     },
     {
       id: 'material',
       title: 'Material',
       description: 'Access study materials, guides, and resources',
-      icon: <FolderOpen className="w-6 h-6" />,
+      icon: <BookOpen className="w-6 h-6" />,
       color: 'from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30',
+      image: '/images/forum/Material.jpeg',
       isMaterial: true,
       subcategories: [
         {
@@ -303,23 +312,56 @@ export function ForumCategoriesDashboard() {
             <button
               key={category.id}
               onClick={() => handleCategoryClick(category.id)}
-              className={`p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-white/10 text-left group ${category.isMaterial ? 'ring-2 ring-amber-500/50' : ''}`}
+              className={`relative overflow-hidden group bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-white/20 text-left ${category.isMaterial ? 'ring-2 ring-amber-500/50 hover:ring-amber-500/70' : ''}`}
             >
-              <div className={`p-3 rounded-xl bg-gradient-to-r ${category.color} mb-4 group-hover:scale-110 transition-transform`}>
-                {category.icon}
+              {/* Background Image */}
+              <div className="absolute inset-0">
+                <div 
+                  className="w-full h-full object-cover opacity-70 group-hover:opacity-80 transition-opacity duration-300"
+                  style={{
+                    backgroundImage: `url(${category.image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                />
+                {/* Dark overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
               </div>
-              <h3 className={`text-xl font-bold mb-2 ${category.isMaterial ? 'text-amber-400' : 'text-white'} group-hover:${category.isMaterial ? 'text-amber-300' : 'text-gray-200'} transition-colors`}>
-                {category.title}
-              </h3>
-              <p className="text-gray-400 text-sm">
-                {category.description}
-              </p>
-              {category.isMaterial && (
-                <div className="mt-4 text-amber-400 text-sm font-medium flex items-center gap-2">
-                  <FolderOpen className="w-4 h-4" />
-                  Resource Repository
+              
+              {/* Content with overlay title */}
+              <div className="relative z-10 h-full min-h-[200px] flex flex-col justify-between p-6">
+                {/* Icon at top */}
+                <div className={`p-3 rounded-xl bg-gradient-to-r ${category.color} group-hover:scale-110 transition-transform backdrop-blur-sm border border-white/10 self-start`}>
+                  {category.isMaterial ? (
+                    <div className="relative">
+                      <BookOpen className="w-6 h-6 text-amber-400" />
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full animate-pulse" />
+                    </div>
+                  ) : (
+                    category.icon
+                  )}
                 </div>
-              )}
+                
+                {/* Title overlay at bottom */}
+                <div className="space-y-2">
+                  <h3 className={`text-xl font-bold ${category.isMaterial ? 'text-amber-400' : 'text-white'} group-hover:${category.isMaterial ? 'text-amber-300' : 'text-gray-200'} transition-colors drop-shadow-lg text-center`}>
+                    {category.title}
+                  </h3>
+                  {category.isMaterial && (
+                    <div className="text-amber-400 text-sm font-medium flex items-center justify-center gap-2 bg-amber-500/20 backdrop-blur-sm px-3 py-2 rounded-lg border border-amber-500/30">
+                      <BookOpen className="w-4 h-4" />
+                      Resource Repository
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Hover glow effect */}
+              <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
+                category.isMaterial 
+                  ? 'shadow-[0_0_30px_rgba(251,191,36,0.3),0_0_60px_rgba(251,191,36,0.1)]' 
+                  : 'shadow-[0_0_20px_rgba(255,255,255,0.1),0_0_40px_rgba(255,255,255,0.05)]'
+              }`} />
             </button>
           ))}
         </div>
