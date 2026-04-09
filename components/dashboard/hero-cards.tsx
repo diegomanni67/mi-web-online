@@ -65,43 +65,19 @@ function HeroCard({
     <button
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-3xl text-left transition-all duration-500 ease-out",
-        "glass",
+        "bg-slate-900 border border-slate-600",
         isHovered
-          ? isAcademy
-            ? "shadow-[0_8px_60px_oklch(0.72_0.19_220/0.3)] scale-[1.01]"
-            : "shadow-[0_8px_60px_oklch(0.72_0.22_350/0.3)] scale-[1.01]"
-          : "shadow-[0_4px_30px_oklch(0_0_0/0.06)]"
+          ? "scale-[1.02] border-slate-500"
+          : ""
       )}
-      style={{
-        borderColor: isHovered
-          ? isAcademy
-            ? "oklch(0.72 0.19 220 / 0.4)"
-            : "oklch(0.72 0.22 350 / 0.4)"
-          : undefined,
-      }}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
       onClick={onClick}
     >
-      {/* Iridescent background shimmer */}
-      <div
-        className={cn(
-          "absolute inset-0 opacity-0 transition-opacity duration-700",
-          isHovered ? "opacity-100" : "opacity-0"
-        )}
-      >
-        <div
-          className={cn(
-            "absolute inset-0 animate-shimmer",
-            isAcademy
-              ? "bg-gradient-to-r from-transparent via-[oklch(0.72_0.19_220/0.08)] to-transparent"
-              : "bg-gradient-to-r from-transparent via-[oklch(0.72_0.22_350/0.08)] to-transparent"
-          )}
-        />
-      </div>
+
 
       {/* Image section */}
-      <div className="relative h-44 overflow-hidden sm:h-52">
+      <div className="relative h-32 overflow-hidden sm:h-36">
         <Image
           src={imageSrc}
           alt={`${title} - social learning`}
@@ -116,27 +92,12 @@ function HeroCard({
         {/* Gradient fade to glass */}
         <div className="absolute inset-0 bg-gradient-to-t from-[oklch(1_0_0/0.9)] via-[oklch(1_0_0/0.3)] to-transparent" />
 
-        {/* Holographic accent strip */}
-        <div
-          className={cn(
-            "absolute inset-x-0 bottom-0 h-1 transition-all duration-500",
-            isAcademy
-              ? "bg-gradient-to-r from-[oklch(0.72_0.19_220)] via-[oklch(0.75_0.18_190)] to-[oklch(0.72_0.19_220)]"
-              : "bg-gradient-to-r from-[oklch(0.72_0.22_350)] via-[oklch(0.75_0.18_55)] to-[oklch(0.72_0.22_350)]",
-            isHovered ? "h-1.5 opacity-100" : "opacity-60"
-          )}
-        />
 
         {/* Floating level badge */}
         <div className="absolute left-4 top-4">
           <span
             className={cn(
-              "flex items-center gap-1.5 rounded-2xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest glass-strong",
-              isHovered
-                ? isAcademy
-                  ? "bg-[oklch(0.72_0.19_220)] text-[oklch(0.99_0_0)] border-[oklch(0.72_0.19_220)]"
-                  : "bg-[oklch(0.72_0.22_350)] text-[oklch(0.99_0_0)] border-[oklch(0.72_0.22_350)]"
-                : "text-foreground"
+              "flex items-center gap-1.5 rounded-2xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-slate-900/80 text-white border border-slate-600"
             )}
           >
             <Icon className="size-3" />
@@ -144,17 +105,10 @@ function HeroCard({
           </span>
         </div>
 
-        {/* Online indicator */}
-        <div className="absolute right-4 top-4">
-          <span className="flex items-center gap-1.5 rounded-2xl glass-strong px-2.5 py-1.5 text-[11px] font-semibold text-foreground">
-            <span className="size-2 rounded-full bg-[oklch(0.75_0.18_160)] shadow-[0_0_8px_oklch(0.75_0.18_160)]" />
-            {activeNow} live
-          </span>
-        </div>
       </div>
 
       {/* Content */}
-      <div className="relative flex flex-1 flex-col gap-3.5 p-5 sm:p-6">
+      <div className="relative flex flex-1 flex-col gap-2.5 p-3 sm:p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2.5">
@@ -169,13 +123,13 @@ function HeroCard({
                 <Icon className="size-5 text-[oklch(0.99_0_0)]" />
               </div>
               <div>
-                <h3 className="font-serif text-xl font-bold tracking-tight text-foreground sm:text-2xl text-balance">
+                <h3 className="font-serif text-xl font-bold tracking-tight text-white sm:text-2xl text-balance">
                   {title}
                 </h3>
                 <p
                   className={cn(
                     "text-[11px] font-bold uppercase tracking-[0.2em]",
-                    isAcademy ? "text-primary" : "text-accent"
+                    isAcademy ? "text-blue-300" : "text-pink-300"
                   )}
                 >
                   {tagline}
@@ -188,9 +142,9 @@ function HeroCard({
               "flex size-9 shrink-0 items-center justify-center rounded-xl transition-all duration-500",
               isHovered
                 ? isAcademy
-                  ? "bg-primary text-primary-foreground shadow-[0_0_20px_oklch(0.72_0.19_220/0.4)]"
-                  : "bg-accent text-accent-foreground shadow-[0_0_20px_oklch(0.72_0.22_350/0.4)]"
-                : "bg-secondary text-muted-foreground"
+                  ? "bg-blue-500 text-white"
+                  : "bg-pink-500 text-white"
+                : "bg-slate-700 text-slate-300"
             )}
           >
             <ArrowRight
@@ -202,7 +156,7 @@ function HeroCard({
           </div>
         </div>
 
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="text-sm leading-relaxed text-slate-200">
           {description}
         </p>
 
@@ -212,14 +166,16 @@ function HeroCard({
             <span
               key={feature.label}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium glass",
-                "text-secondary-foreground"
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium",
+                isAcademy
+                  ? "bg-blue-900/50 text-blue-200"
+                  : "bg-pink-900/50 text-pink-200"
               )}
             >
               <feature.icon
                 className={cn(
                   "size-3 shrink-0",
-                  isAcademy ? "text-primary" : "text-accent"
+                  isAcademy ? "text-blue-200" : "text-pink-200"
                 )}
               />
               {feature.label}
@@ -227,43 +183,6 @@ function HeroCard({
           ))}
         </div>
 
-        {/* Social footer */}
-        <div className="mt-auto flex items-center justify-between border-t border-border pt-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex -space-x-2">
-              {onlineAvatars.map((a) => (
-                <div
-                  key={a.initials}
-                  className={cn(
-                    "flex size-7 items-center justify-center rounded-full border-2 border-[oklch(1_0_0/0.8)] text-[9px] font-bold text-[oklch(0.99_0_0)]",
-                    a.bg
-                  )}
-                >
-                  {a.initials}
-                </div>
-              ))}
-            </div>
-            <span className="text-xs text-muted-foreground">
-              <span className="font-bold text-foreground">{memberCount}</span>{" "}
-              members
-            </span>
-          </div>
-          <span
-            className={cn(
-              "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-bold transition-all duration-500",
-              isHovered
-                ? isAcademy
-                  ? "bg-primary text-primary-foreground shadow-[0_0_20px_oklch(0.72_0.19_220/0.3)]"
-                  : "bg-accent text-accent-foreground shadow-[0_0_20px_oklch(0.72_0.22_350/0.3)]"
-                : isAcademy
-                  ? "bg-[oklch(0.72_0.19_220/0.1)] text-primary"
-                  : "bg-[oklch(0.72_0.22_350/0.1)] text-accent"
-            )}
-          >
-            <Zap className="size-3" />
-            Enter
-          </span>
-        </div>
       </div>
     </button>
   )

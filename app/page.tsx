@@ -17,64 +17,33 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col justify-center">
 
       {/* Hero Section */}
       <section id="hero" className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 via-blue-100/20 to-transparent" />
-        <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="mx-auto flex max-w-3xl items-center justify-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg">
-                <span className="text-2xl font-bold text-white">K</span>
-              </div>
-              <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                Koterie Language Studio
-              </h1>
-            </div>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-600">
-              Tu club social premium de idiomas. Academy para crecimiento, Studio para maestría.
-            </p>
-            <div className="mx-auto mt-10 flex max-w-md justify-center gap-8">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Users className="h-4 w-4" />
-                <span>4.2k miembros</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <GraduationCap className="h-4 w-4" />
-                <span>2 niveles</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Rocket className="h-4 w-4" />
-                <span>USD 80/mes</span>
-              </div>
-            </div>
-          </div>
+        <div className="relative mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8 flex justify-center items-start">
+          <img 
+            src="/isologo-premium.png" 
+            alt="Koterie Language Studio Premium" 
+            className="w-[350px] h-auto rounded-3xl drop-shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+          />
         </div>
       </section>
 
       {/* Hero Cards */}
-      <section id="academy" className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Elige tu camino
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Comienza donde estás y llega hasta donde quieras
-          </p>
-        </div>
-        
+      <section id="academy" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12">
         <HeroCards />
       </section>
 
       {/* Community Section */}
-      <section id="community" className="py-24 bg-white">
+      <section id="community" className="py-24 bg-gradient-to-br from-slate-800 to-blue-900">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Únete a nuestra comunidad
             </h2>
-            <p className="mt-4 text-lg text-gray-600">
+            <p className="mt-4 text-lg text-blue-100">
               Conecta con otros estudiantes y comparte tu progreso
             </p>
           </div>
@@ -87,8 +56,8 @@ export default function HomePage() {
                   <Users className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Comunidad Activa</h3>
-                  <p className="mt-1 text-gray-600">Más de 4,000 estudiantes aprendiendo juntos</p>
+                  <h3 className="text-lg font-semibold text-white">Comunidad Activa</h3>
+                  <p className="mt-1 text-blue-100">Aprende junto a otros estudiantes</p>
                 </div>
               </div>
 
@@ -97,8 +66,8 @@ export default function HomePage() {
                   <MessageCircle className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Salas de Voz</h3>
-                  <p className="mt-1 text-gray-600">Practica tu inglés en tiempo real</p>
+                  <h3 className="text-lg font-semibold text-white">Salas de Voz</h3>
+                  <p className="mt-1 text-blue-100">Practica tu inglés en tiempo real</p>
                 </div>
               </div>
 
@@ -107,8 +76,8 @@ export default function HomePage() {
                   <Star className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Eventos Exclusivos</h3>
-                  <p className="mt-1 text-gray-600">Seminarios y workshops mensuales</p>
+                  <h3 className="text-lg font-semibold text-white">Eventos Exclusivos</h3>
+                  <p className="mt-1 text-blue-100">Seminarios y workshops mensuales</p>
                 </div>
               </div>
             </div>
@@ -138,7 +107,7 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      <section id="pricing" className="py-24 bg-gradient-to-br from-slate-900 to-blue-900">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <PricingSection />
         </div>
@@ -150,9 +119,11 @@ export default function HomePage() {
           <div className="grid gap-8 lg:grid-cols-4">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600">
-                  <span className="text-lg font-bold text-white">K</span>
-                </div>
+                <img 
+                  src="/koterie-logo-transparent.png" 
+                  alt="Koterie Language Studio" 
+                  className="h-10 w-auto"
+                />
                 <span className="text-xl font-bold">Koterie</span>
               </div>
               <p className="text-gray-400">

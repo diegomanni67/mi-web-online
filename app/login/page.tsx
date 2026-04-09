@@ -45,9 +45,11 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl mb-4">
-            <span className="text-white text-2xl font-bold">K</span>
-          </div>
+          <img 
+            src="/koterie-logo-transparent.png" 
+            alt="Koterie Language Studio" 
+            className="w-24 h-auto mx-auto mb-4"
+          />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Koterie Language Studio
           </h1>

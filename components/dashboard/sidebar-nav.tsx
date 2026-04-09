@@ -49,9 +49,11 @@ export function SidebarNav() {
           <Menu className="size-5" />
         </button>
         <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
-            <Sparkles className="size-4 text-primary-foreground" />
-          </div>
+          <img 
+            src="/koterie-logo-transparent.png" 
+            alt="Koterie Language Studio" 
+            className="size-12 object-contain"
+          />
           <span className="font-serif text-sm font-bold tracking-tight text-foreground">
             Koterie
           </span>
@@ -69,8 +71,12 @@ export function SidebarNav() {
       {/* Desktop icon rail */}
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[72px] flex-col items-center py-5 glass-strong lg:flex">
         {/* Logo */}
-        <div className="mb-8 flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-[0_4px_20px_oklch(0.72_0.19_220/0.3)]">
-          <Sparkles className="size-5 text-primary-foreground" />
+        <div className="mb-8 flex size-20 items-center justify-center">
+          <img 
+            src="/koterie-logo-transparent.png" 
+            alt="Koterie Language Studio" 
+            className="size-full object-contain"
+          />
         </div>
 
         {/* Nav */}
@@ -169,9 +175,11 @@ export function SidebarNav() {
         {/* Header */}
         <div className="flex h-14 items-center justify-between border-b border-border px-5">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
-              <Sparkles className="size-4 text-primary-foreground" />
-            </div>
+            <img 
+              src="/koterie-logo-transparent.png" 
+              alt="Koterie Language Studio" 
+              className="size-12 object-contain"
+            />
             <div className="flex flex-col">
               <span className="font-serif text-sm font-bold tracking-tight text-foreground">
                 Koterie

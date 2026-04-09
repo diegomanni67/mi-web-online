@@ -83,10 +83,10 @@ export function PricingSection() {
             </div>
           </div>
 
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-foreground mb-3 sm:text-4xl">
+          <h2 className="font-serif text-3xl font-bold tracking-tight text-black mb-3 sm:text-4xl">
             Acceso Completo
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto">
             Todo el contenido de Koterie Language Studio en un solo plan
           </p>
         </div>
@@ -100,23 +100,11 @@ export function PricingSection() {
             <div className="relative rounded-3xl bg-gradient-to-r from-[oklch(0.72_0.19_220)] via-[oklch(0.72_0.22_350)] to-[oklch(0.75_0.18_55)] p-1">
               <div className="rounded-3xl bg-background p-6 sm:p-8">
                 <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-4xl sm:text-5xl font-bold text-foreground">USD</span>
+                  <span className="text-4xl sm:text-5xl font-bold text-black">USD</span>
                   <span className="text-6xl sm:text-7xl font-black bg-gradient-to-r from-[oklch(0.72_0.19_220)] via-[oklch(0.72_0.22_350)] to-[oklch(0.75_0.18_55)] bg-clip-text text-transparent">
                     80
                   </span>
-                  <span className="text-xl sm:text-2xl font-semibold text-muted-foreground">/ mes</span>
-                </div>
-                
-                {/* Trust indicators */}
-                <div className="flex items-center justify-center gap-4 mt-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="size-4 fill-[oklch(0.75_0.18_55)] text-[oklch(0.75_0.18_55)]" />
-                    <span className="text-sm font-medium text-foreground">4.9/5</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Shield className="size-4 text-primary" />
-                    <span className="text-sm font-medium text-foreground">Garantía 7 días</span>
-                  </div>
+                  <span className="text-xl sm:text-2xl font-semibold text-gray-700">/ mes</span>
                 </div>
               </div>
             </div>
@@ -172,17 +160,14 @@ export function PricingSection() {
               <div className="flex items-center justify-center rounded-xl bg-primary/10 p-2">
                 <Check className="size-4 text-primary" />
               </div>
-              <span className="text-sm font-medium text-foreground">{benefit}</span>
+              <span className="text-sm font-medium text-gray-800">{benefit}</span>
             </div>
           ))}
         </div>
 
         {/* Footer trust message */}
         <div className="text-center mt-8 pt-6 border-t border-border/50">
-          <p className="text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">+5,000 estudiantes</span> ya están aprendiendo con Koterie
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-gray-700">
             Cancela cuando quieras • Sin costos ocultos • Soporte en español
           </p>
         </div>

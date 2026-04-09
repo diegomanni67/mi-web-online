@@ -12,23 +12,24 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50">
+    <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-blue-800/50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg">
-              <span className="text-lg font-bold text-white">K</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">Koterie</span>
+            <img 
+              src="/koterie-logo-transparent.png" 
+              alt="Koterie Language Studio" 
+              className="h-20 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="#academy" className="text-gray-600 hover:text-gray-900 transition-colors">Academy</Link>
-            <Link href="/studio" className="text-gray-600 hover:text-gray-900 transition-colors">Studio</Link>
-            <Link href="#community" className="text-gray-600 hover:text-gray-900 transition-colors">Comunidad</Link>
-            <Link href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Precios</Link>
+            <Link href="#academy" className="text-blue-100 hover:text-white transition-colors">Academy</Link>
+            <Link href="/studio" className="text-blue-100 hover:text-white transition-colors">Studio</Link>
+            <Link href="#community" className="text-blue-100 hover:text-white transition-colors">Comunidad</Link>
+            <Link href="#pricing" className="text-blue-100 hover:text-white transition-colors">Precios</Link>
           </nav>
 
           {/* User Actions - VERSIÓN LOCAL ABIERTA */}
@@ -44,7 +45,7 @@ export function Header() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-2xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+              className="md:hidden p-2 rounded-2xl bg-blue-800/50 text-blue-100 hover:bg-blue-700/50 transition-colors"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -54,12 +55,12 @@ export function Header() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200/50">
+        <div className="md:hidden bg-slate-900/90 backdrop-blur-md border-t border-blue-800/50">
           <div className="px-4 py-3 space-y-2">
-            <Link href="#academy" className="block px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-100">Academy</Link>
-            <Link href="/studio" className="block px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-100">Studio</Link>
-            <Link href="#community" className="block px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-100">Comunidad</Link>
-            <Link href="#pricing" className="block px-3 py-2 rounded-xl text-gray-600 hover:bg-gray-100">Precios</Link>
+            <Link href="#academy" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Academy</Link>
+            <Link href="/studio" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Studio</Link>
+            <Link href="#community" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Comunidad</Link>
+            <Link href="#pricing" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Precios</Link>
           </div>
         </div>
       )}
