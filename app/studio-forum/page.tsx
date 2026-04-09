@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { SharedForumLayout } from "@/components/forum/shared-forum-layout"
+import { ForumCategoriesDashboard } from "@/components/forum/ForumCategoriesDashboard"
 
 export default function StudioForumPage() {
   const { data: session, status } = useSession()
@@ -108,17 +108,5 @@ export default function StudioForumPage() {
     { id: 'advanced', name: 'Avanzado', color: 'bg-red-100 text-red-800 border-red-200' }
   ]
 
-  return (
-    <SharedForumLayout
-      forumType="studio"
-      posts={studioPosts}
-      categories={studioCategories}
-      title="Koterie Studio"
-      description="Comunidad exclusiva para estudiantes avanzados B1+"
-      memberCount="856"
-      activeNow={124}
-    >
-      {/* Content will be handled by the layout itself */}
-    </SharedForumLayout>
-  )
+  return <ForumCategoriesDashboard />
 }

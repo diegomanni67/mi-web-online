@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
+import CredentialsProvider from 'next-auth/providers/credentials'
 import { UserRole } from '@/lib/types'
 
 const handler = NextAuth({
@@ -15,6 +16,44 @@ const handler = NextAuth({
           access_type: "offline",
           response_type: "code"
         }
+      }
+    }),
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        // Login temporal para pruebas
+        if (credentials?.email === "admin@koterie.com" && credentials?.password === "admin123") {
+          return {
+            id: "1",
+            email: "diegomanni67@gmail.com",
+            name: "Admin Koterie",
+            role: UserRole.ADMIN,
+            hasPaid: true
+          }
+        }
+        if (credentials?.email === "user@koterie.com" && credentials?.password === "user123") {
+          return {
+            id: "2", 
+            email: "user@koterie.com",
+            name: "Usuario Koterie",
+            role: UserRole.STUDENT_ACADEMY,
+            hasPaid: false
+          }
+        }
+        if (credentials?.email === "paid@koterie.com" && credentials?.password === "paid123") {
+          return {
+            id: "3",
+            email: "paid@koterie.com", 
+            name: "Usuario Pagado",
+            role: UserRole.STUDENT_STUDIO,
+            hasPaid: true
+          }
+        }
+        return null
       }
     })
   ],
@@ -44,15 +83,10 @@ const handler = NextAuth({
       return session
     },
     async jwt({ token, user }) {
-      // Asignar rol por defecto al primer login
+      // Asignar rol y pago al primer login con credenciales
       if (user) {
-        token.role = UserRole.STUDENT_ACADEMY
-        
-        // Set hasPaid to false by default for new users
-        // Bypass for admin email y profesoras
-        const isAdminUser = user.email === 'diegomanni67@gmail.com'
-        const isProfessor = user.email === '[MAIL1]' || user.email === '[MAIL2]'
-        token.hasPaid = isAdminUser || isProfessor || false
+        token.role = user.role || UserRole.STUDENT_ACADEMY
+        token.hasPaid = user.hasPaid || false
       }
       return token
     },

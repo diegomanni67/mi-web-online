@@ -3,11 +3,15 @@
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { Mail, ArrowRight } from 'lucide-react'
+import { Mail, ArrowRight, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [credentialsError, setCredentialsError] = useState('')
   const { data: session, status } = useSession()
 
   // Debug de sesión
@@ -45,6 +49,30 @@ export default function LoginPage() {
       await signIn('google')
     } catch (error) {
       console.error('Error signing in:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCredentialsSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setCredentialsError('')
+    
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false
+      })
+      
+      if (result?.error) {
+        setCredentialsError('Credenciales inválidas')
+      } else if (result?.ok) {
+        router.push('/checkout')
+      }
+    } catch (error) {
+      setCredentialsError('Error al iniciar sesión')
     } finally {
       setIsLoading(false)
     }
@@ -110,6 +138,85 @@ export default function LoginPage() {
               <ArrowRight className="w-5 h-5 text-gray-400" />
             )}
           </button>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">o</span>
+            </div>
+          </div>
+
+          {/* Credentials Form */}
+          <form onSubmit={handleCredentialsSignIn} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                placeholder="tu@email.com"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent pr-12"
+                  placeholder="tu contraseña"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {credentialsError && (
+              <div className="text-red-600 text-sm text-center">
+                {credentialsError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="font-medium">
+                {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              </span>
+              {isLoading && (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              )}
+            </button>
+          </form>
+
+          {/* Demo Accounts Info */}
+          <div className="mt-6 p-4 bg-purple-50 rounded-xl">
+            <p className="text-xs text-purple-700 font-medium mb-2">Cuentas de demo:</p>
+            <div className="text-xs text-purple-600 space-y-1">
+              <p>Admin: admin@koterie.com / admin123</p>
+              <p>Usuario: user@koterie.com / user123</p>
+              <p>Pagado: paid@koterie.com / paid123</p>
+            </div>
+          </div>
 
           {/* Additional Options */}
           <div className="mt-6 pt-6 border-t border-gray-100">

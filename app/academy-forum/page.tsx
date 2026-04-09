@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { SharedForumLayout } from "@/components/forum/shared-forum-layout"
+import { ForumCategoriesDashboard } from "@/components/forum/ForumCategoriesDashboard"
 
 export default function AcademyForumPage() {
   const { data: session, status } = useSession()
@@ -100,17 +100,5 @@ export default function AcademyForumPage() {
     { id: 'practice', name: 'Práctica', color: 'bg-orange-100 text-orange-800 border-orange-200' }
   ]
 
-  return (
-    <SharedForumLayout
-      forumType="academy"
-      posts={academyPosts}
-      categories={academyCategories}
-      title="Academy Forum"
-      description="Espacio para estudiantes de niveles A1-A2"
-      memberCount="1,234"
-      activeNow={89}
-    >
-      {/* Content will be handled by the layout itself */}
-    </SharedForumLayout>
-  )
+  return <ForumCategoriesDashboard />
 }
