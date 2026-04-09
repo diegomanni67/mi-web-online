@@ -1,8 +1,9 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from 'next-auth/react'
 import { CreditCard, Zap, Shield, Star, ArrowRight, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -18,7 +19,6 @@ const benefits = [
 export function PricingSection() {
   const [isHovered, setIsHovered] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { data: session } = useSession()
   const router = useRouter()
 
   const handleMercadoPagoPayment = async () => {
@@ -40,7 +40,7 @@ export function PricingSection() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: session?.user?.email || 'guest@example.com'
+          email: 'invitado@koterie.local'
         }),
       })
 

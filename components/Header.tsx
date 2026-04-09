@@ -1,13 +1,13 @@
 "use client"
 
-import { useSession, signIn } from 'next-auth/react'
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
 import { User, Bell, Menu, X } from 'lucide-react'
 
 export function Header() {
-  const { data: session, status } = useSession()
   const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -31,28 +31,15 @@ export function Header() {
             <Link href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Precios</Link>
           </nav>
 
-          {/* User Actions */}
+          {/* User Actions - VERSIÓN LOCAL ABIERTA */}
           <div className="flex items-center gap-3">
-            {status === 'authenticated' ? (
-              <>
-                <button className="relative p-2 rounded-2xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-                <Link href="/profile/current" className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-purple-600 text-white hover:bg-purple-700 transition-colors">
-                  <User className="w-4 h-4" />
-                  <span className="hidden sm:inline">Perfil</span>
-                </Link>
-              </>
-            ) : (
-              <button
-                onClick={() => signIn('google')}
-                className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-purple-600 text-white hover:bg-purple-700 transition-colors"
-              >
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">Iniciar Sesión</span>
-              </button>
-            )}
+            <Link href="/community" className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-green-600 text-white hover:bg-green-700 transition-colors">
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">Comunidad</span>
+            </Link>
+            <Link href="/academy-forum" className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-purple-600 text-white hover:bg-purple-700 transition-colors">
+              <span className="hidden sm:inline">Foros</span>
+            </Link>
             
             {/* Mobile Menu Toggle */}
             <button

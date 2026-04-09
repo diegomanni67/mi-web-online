@@ -1,7 +1,8 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
 import { forumStorage, ForumThread, ForumReply } from "@/lib/forum-storage"
 import { ArrowLeft, MessageCircle, Heart, Clock, User, Send, Pin, Reply, ChevronDown, ChevronUp } from "lucide-react"
 import { ReplyComponent } from "./ReplyComponent"
@@ -12,7 +13,6 @@ interface ThreadDetailProps {
 }
 
 export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
-  const { data: session } = useSession()
   const [thread, setThread] = useState<ForumThread | null>(null)
   const [replies, setReplies] = useState<ForumReply[]>([])
   const [replyContent, setReplyContent] = useState("")
@@ -22,11 +22,16 @@ export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    const loadThread = () => {
-      const threadData = forumStorage.getThread(threadId)
-      if (threadData) {
-        setThread(threadData)
-        setReplies(forumStorage.getReplies(threadId))
+    const loadThread = async () => {
+      try {
+        const threadData = await forumStorage.getThread(threadId)
+        if (threadData) {
+          setThread(threadData)
+          const threadReplies = await forumStorage.getReplies(threadId)
+          setReplies(threadReplies)
+        }
+      } catch (error) {
+        console.error('Error loading thread:', error)
       }
     }
 
@@ -36,10 +41,7 @@ export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!session) {
-      setError("Debes iniciar sesión para responder")
-      return
-    }
+    // VERSIÓN LOCAL ABIERTA - SIN VERIFICACIÓN DE SESIÓN
 
     if (!replyContent.trim()) {
       setError("El contenido de la respuesta es obligatorio")
@@ -50,12 +52,12 @@ export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
     setError("")
 
     try {
-      const newReply = forumStorage.saveReply({
+      const newReply = await forumStorage.saveReply({
         threadId,
         content: replyContent.trim(),
-        author: session.user.name || "Anonymous",
-        authorEmail: session.user.email || "",
-        authorRole: session.user.role || "Student",
+        author: "Usuario Invitado", // VERSIÓN LOCAL ABIERTA
+        authorEmail: "invitado@koterie.local",
+        authorRole: "Student",
         parentId: replyingTo || undefined
       })
 
@@ -216,9 +218,8 @@ export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
           </div>
         </div>
 
-        {/* Reply Form - Always Visible */}
-        {session && (
-          <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 mb-8 sticky bottom-4">
+        {/* Reply Form - Always Visible - VERSIÓN LOCAL ABIERTA */}
+        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 mb-8 sticky bottom-4">
             {replyingTo && (
               <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-purple-300">
@@ -276,7 +277,6 @@ export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
               )}
             </form>
           </div>
-        )}
 
         {/* Replies Section */}
         <div className="space-y-6">
@@ -290,7 +290,7 @@ export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
             <div className="text-center py-12 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
               <MessageCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
               <h4 className="text-xl font-semibold text-gray-400 mb-2">
-                {session ? "Sé el primero en participar" : "Inicia sesión para unirte a la discusión"}
+                Sé el primero en participar
               </h4>
               <p className="text-gray-500">
                 Comparte tu opinión y ayuda a construir una comunidad activa
@@ -303,7 +303,7 @@ export function ThreadDetail({ threadId, onBack }: ThreadDetailProps) {
                   key={reply.id}
                   reply={reply}
                   threadId={threadId}
-                  session={session}
+                  session={undefined} // VERSIÓN LOCAL ABIERTA
                   onReply={setReplyingTo}
                   nestedReplies={getNestedReplies(reply.id)}
                   expandedReplies={expandedReplies}

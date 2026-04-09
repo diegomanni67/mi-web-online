@@ -1,27 +1,22 @@
 "use client"
 
-import { useSession, signIn } from 'next-auth/react'
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { CreditCard, Crown, Lock, CheckCircle, Star, Users, BookOpen, Video } from 'lucide-react'
 
 export default function PricingPage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
 
-  // Si no está logueado, redirigir a login
-  if (status === "loading") {
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
+  if (isProcessing) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-lg">Cargando...</div>
+        <div className="text-lg">Procesando...</div>
       </div>
     )
-  }
-
-  if (!session) {
-    router.push('/login')
-    return null
   }
 
   const handlePayment = async () => {

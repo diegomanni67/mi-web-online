@@ -1,35 +1,26 @@
 "use client"
 
-import { useSession, signIn } from 'next-auth/react'
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { CreditCard, Crown, Lock, CheckCircle } from 'lucide-react'
 
 export default function UpgradePage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
 
-  // Si no está logueado, redirigir a login
-  if (status === "loading") {
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
+  if (isProcessing) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-lg">Cargando...</div>
+        <div className="text-lg">Procesando...</div>
       </div>
     )
   }
 
-  if (!session) {
-    router.push('/login')
-    return null
-  }
-
-  const handlePayment = async () => {
-    setIsProcessing(true)
-    
-    // Simular proceso de pago (2 segundos)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
+  if (true) { // Siempre mostrar contenido en versión local
     // Redirigir a página de éxito
     router.push('/upgrade/success')
   }
@@ -111,12 +102,12 @@ export default function UpgradePage() {
             </div>
           </div>
 
-          {/* Payment Button */}
+          {/* Payment Button - VERSIÓN LOCAL ABIERTA */}
           <div className="text-center">
             <button
-              onClick={handlePayment}
+              onClick={() => router.push('/upgrade/success')}
               disabled={isProcessing}
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-2xl hover:from-green-700 hover:to-blue-700 transition-all duration-200 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {isProcessing ? (
                 <>
@@ -125,8 +116,8 @@ export default function UpgradePage() {
                 </>
               ) : (
                 <>
-                  <CreditCard className="w-5 h-5" />
-                  Pagar Suscripción
+                  <CheckCircle className="w-5 h-5" />
+                  Acceder Gratuitamente
                 </>
               )}
             </button>

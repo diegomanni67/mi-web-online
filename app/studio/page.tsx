@@ -1,7 +1,8 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState, useRef, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Send, Trash2, Loader2, AlertCircle, ArrowLeft } from 'lucide-react'
 
@@ -13,32 +14,16 @@ interface Message {
 }
 
 export default function StudioPage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
 
-  // Security check
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
   useEffect(() => {
-    if (status === 'loading') return
-    
-    if (!session) {
-      router.push('/auth')
-      return
-    }
-
-    // Check if user has paid or is admin
-    const hasPaid = session.user.hasPaid
-    const isAdmin = session.user.email === 'diegomanni67@gmail.com'
-    
-    if (!hasPaid && !isAdmin) {
-      router.push('/checkout')
-      return
-    }
-  }, [session, status, router])
+    // Sin verificaciones de sesión en versión local
+  }, [])
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -99,24 +84,8 @@ export default function StudioPage() {
     }
   }
 
-  if (status === 'loading') {
-    return (
-      <div className="relative min-h-screen overflow-hidden bg-background">
-        <div className="pointer-events-none fixed inset-0 overflow-hidden">
-          <div className="absolute -left-32 -top-32 size-[500px] rounded-full bg-[oklch(0.72_0.19_220/0.12)] blur-[120px]" />
-          <div className="absolute -right-32 top-1/3 size-[400px] rounded-full bg-[oklch(0.72_0.22_350/0.1)] blur-[120px]" />
-          <div className="absolute bottom-0 left-1/3 size-[450px] rounded-full bg-[oklch(0.75_0.18_55/0.08)] blur-[120px]" />
-        </div>
-
-        <div className="relative z-10 flex min-h-screen items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">Verificando acceso...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
+  if (false) { // No mostrar loading en versión local
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
@@ -247,4 +216,5 @@ export default function StudioPage() {
       </div>
     </div>
   )
+}
 }

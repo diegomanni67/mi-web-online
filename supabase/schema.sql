@@ -1,0 +1,106 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Forum Threads Table
+CREATE TABLE IF NOT EXISTS forum_threads (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  author TEXT NOT NULL,
+  author_email TEXT NOT NULL,
+  author_role TEXT NOT NULL,
+  category TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  replies INTEGER DEFAULT 0,
+  views INTEGER DEFAULT 0,
+  pinned BOOLEAN DEFAULT FALSE,
+  tags TEXT[] DEFAULT '{}'
+);
+
+-- Forum Replies Table
+CREATE TABLE IF NOT EXISTS forum_replies (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  thread_id UUID REFERENCES forum_threads(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  author TEXT NOT NULL,
+  author_email TEXT NOT NULL,
+  author_role TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  likes INTEGER DEFAULT 0,
+  parent_id UUID REFERENCES forum_replies(id) ON DELETE CASCADE
+);
+
+-- Material Links Table
+CREATE TABLE IF NOT EXISTS material_links (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  url TEXT NOT NULL,
+  added_by TEXT NOT NULL,
+  subcategory_id TEXT NOT NULL,
+  added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Users Table (for authentication and user management)
+CREATE TABLE IF NOT EXISTS users (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'STUDENT_ACADEMY',
+  interests TEXT[] DEFAULT '{}',
+  class_schedule TEXT,
+  avatar TEXT,
+  has_paid BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_forum_threads_category ON forum_threads(category);
+CREATE INDEX IF NOT EXISTS idx_forum_threads_created_at ON forum_threads(created_at);
+CREATE INDEX IF NOT EXISTS idx_forum_threads_pinned ON forum_threads(pinned);
+CREATE INDEX IF NOT EXISTS idx_forum_replies_thread_id ON forum_replies(thread_id);
+CREATE INDEX IF NOT EXISTS idx_forum_replies_created_at ON forum_replies(created_at);
+CREATE INDEX IF NOT EXISTS idx_material_links_subcategory_id ON material_links(subcategory_id);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Function to increment counters
+CREATE OR REPLACE FUNCTION increment(column_name TEXT, table_name TEXT, row_id UUID)
+RETURNS INTEGER AS $$
+DECLARE
+  current_value INTEGER;
+BEGIN
+  EXECUTE format('SELECT %I FROM %I WHERE id = $1', column_name, table_name)
+  INTO current_value
+  USING row_id;
+  
+  current_value := current_value + 1;
+  
+  EXECUTE format('UPDATE %I SET %I = $2 WHERE id = $1', table_name, column_name)
+  USING row_id, current_value;
+  
+  RETURN current_value;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE forum_threads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE forum_replies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE material_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Policies for forum_threads (allow all operations for now)
+CREATE POLICY "Enable all operations on forum_threads" ON forum_threads
+  FOR ALL USING (true);
+
+-- Policies for forum_replies (allow all operations for now)
+CREATE POLICY "Enable all operations on forum_replies" ON forum_replies
+  FOR ALL USING (true);
+
+-- Policies for material_links (allow all operations for now)
+CREATE POLICY "Enable all operations on material_links" ON material_links
+  FOR ALL USING (true);
+
+-- Policies for users (allow all operations for now)
+CREATE POLICY "Enable all operations on users" ON users
+  FOR ALL USING (true);

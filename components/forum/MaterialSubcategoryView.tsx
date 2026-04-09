@@ -1,7 +1,8 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
 import { forumStorage, DownloadLink } from "@/lib/forum-storage"
 import { FileText, Plus, X, ExternalLink, Clock, User } from "lucide-react"
 
@@ -20,7 +21,6 @@ export function MaterialSubcategoryView({
   onBack,
   staticLinks
 }: MaterialSubcategoryViewProps) {
-  const { data: session } = useSession()
   const [dynamicLinks, setDynamicLinks] = useState<DownloadLink[]>([])
   const [showAddForm, setShowAddForm] = useState(false)
   const [newLinkName, setNewLinkName] = useState("")
@@ -29,9 +29,14 @@ export function MaterialSubcategoryView({
   const [error, setError] = useState("")
 
   useEffect(() => {
-    const loadLinks = () => {
-      const links = forumStorage.getMaterialLinks(subcategoryId)
-      setDynamicLinks(links)
+    const loadLinks = async () => {
+      try {
+        const links = await forumStorage.getMaterialLinks(subcategoryId)
+        setDynamicLinks(links)
+      } catch (error) {
+        console.error('Error loading links:', error)
+        setDynamicLinks([])
+      }
     }
 
     loadLinks()
@@ -40,10 +45,7 @@ export function MaterialSubcategoryView({
   const handleAddLink = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!session) {
-      setError("Debes iniciar sesión para agregar enlaces")
-      return
-    }
+    // VERSIÓN LOCAL ABIERTA - SIN VERIFICACIÓN DE SESIÓN
 
     if (!newLinkName.trim() || !newLinkUrl.trim()) {
       setError("El nombre y la URL son obligatorios")
@@ -59,14 +61,14 @@ export function MaterialSubcategoryView({
     setError("")
 
     try {
-      forumStorage.addMaterialLink(subcategoryId, {
+      await forumStorage.addMaterialLink(subcategoryId, {
         name: newLinkName.trim(),
         url: newLinkUrl.trim(),
-        addedBy: session.user.name || "Anonymous"
+        addedBy: "Usuario Invitado" // VERSIÓN LOCAL ABIERTA
       })
 
       // Reload links
-      const updatedLinks = forumStorage.getMaterialLinks(subcategoryId)
+      const updatedLinks = await forumStorage.getMaterialLinks(subcategoryId)
       setDynamicLinks(updatedLinks)
 
       // Reset form
@@ -119,9 +121,8 @@ export function MaterialSubcategoryView({
           </h2>
           <p className="text-gray-300 mb-8">{subcategoryDescription}</p>
 
-          {/* Add Link Button */}
-          {session && (
-            <div className="mb-6">
+          {/* Add Link Button - VERSIÓN LOCAL ABIERTA */}
+          <div className="mb-6">
               {!showAddForm ? (
                 <button
                   onClick={() => setShowAddForm(true)}
@@ -206,7 +207,7 @@ export function MaterialSubcategoryView({
                 </div>
               )}
             </div>
-          )}
+          )
 
           {/* Links List */}
           <div className="space-y-4">
@@ -221,7 +222,7 @@ export function MaterialSubcategoryView({
                   No hay recursos disponibles
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  {session ? "Sé el primero en agregar un recurso" : "Inicia sesión para agregar recursos"}
+                  Sé el primero en agregar un recurso
                 </p>
               </div>
             ) : (

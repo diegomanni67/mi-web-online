@@ -1,32 +1,25 @@
 "use client"
 
-import { useSession, signOut } from 'next-auth/react'
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { CheckCircle, Crown, ArrowRight } from 'lucide-react'
 
 export default function UpgradeSuccessPage() {
-  const { data: session, update } = useSession()
   const router = useRouter()
   const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
-    // Simular actualización del estado de pago
-    const updatePaymentStatus = async () => {
+    // VERSIÓN LOCAL ABIERTA - REDIRIGIR DESPUÉS DE SIMULACIÓN
+    const simulateUpgrade = async () => {
       setIsUpdating(true)
-      // Aquí iría la lógica real para actualizar la base de datos
-      // Por ahora, simulamos que el pago se procesó correctamente
-      
-      // Esperar un momento para mostrar efecto de procesamiento
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Actualizar la sesión para reflejar el pago
-      await update()
       setIsUpdating(false)
     }
 
-    updatePaymentStatus()
-  }, [update])
+    simulateUpgrade()
+  }, [])
 
   const handleGoToForums = () => {
     router.push('/foros')
@@ -64,7 +57,7 @@ export default function UpgradeSuccessPage() {
             ¡Pago Exitoso!
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Bienvenido a Koterie Premium, {session?.user?.name}! 
+            Bienvenido a Koterie Premium! 
           </p>
           <p className="text-lg text-gray-600 mb-12">
             Ahora tienes acceso completo a foros, clases en vivo y contenido exclusivo.

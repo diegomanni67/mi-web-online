@@ -1,8 +1,9 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from 'next-auth/react'
 import Image from "next/image"
 import {
   GraduationCap,
@@ -273,18 +274,8 @@ export function HeroCards() {
   const router = useRouter()
 
   const handleCardClick = async (destination: string) => {
-    try {
-      const response = await fetch('/api/auth/session')
-      const session = await response.json()
-      
-      if (!session || !session.user) {
-        await signIn('google')
-      } else {
-        router.push(destination)
-      }
-    } catch (error) {
-      await signIn('google')
-    }
+    // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
+    router.push(destination)
   }
 
   return (

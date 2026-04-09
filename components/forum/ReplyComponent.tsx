@@ -1,13 +1,14 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { ForumReply } from "@/lib/forum-storage"
-import { useSession } from "next-auth/react"
 import { Clock, User, Reply, Heart, ChevronDown, ChevronUp } from "lucide-react"
 
 interface ReplyComponentProps {
   reply: ForumReply
   threadId: string
-  session: any
+  session?: any // Opcional en versión local
   onReply: (replyId: string) => void
   nestedReplies: ForumReply[]
   expandedReplies: Set<string>
@@ -59,15 +60,14 @@ export function ReplyComponent({
             <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
               <Heart className="w-4 h-4" />
             </button>
-            {session && (
-              <button
-                onClick={() => onReply(reply.id)}
-                className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
-                title="Responder"
-              >
-                <Reply className="w-4 h-4" />
-              </button>
-            )}
+            {/* VERSIÓN LOCAL ABIERTA - SIEMPER PERMITIR RESPONDER */}
+            <button
+              onClick={() => onReply(reply.id)}
+              className="p-2 text-gray-400 hover:text-purple-400 transition-colors"
+              title="Responder"
+            >
+              <Reply className="w-4 h-4" />
+            </button>
           </div>
         </div>
 

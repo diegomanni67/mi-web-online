@@ -1,33 +1,12 @@
 "use client"
 
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { ForumCategoriesDashboard } from "@/components/forum/ForumCategoriesDashboard"
 
 export default function AcademyForumPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-    } else if (status === 'authenticated' && !session.user.hasPaid && session.user.email !== 'diegomanni67@gmail.com') {
-      router.push('/checkout')
-    }
-  }, [status, router, session])
-
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-      </div>
-    )
-  }
-
-  if (!session) {
-    return null
-  }
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO SIN VERIFICACIONES
+  
   // Datos específicos para Academy
   const academyPosts = [
     {

@@ -1,7 +1,8 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
 import { forumStorage, ForumThread } from "@/lib/forum-storage"
 import { MessageCircle, Eye, Pin, Clock, Plus, Search } from "lucide-react"
 
@@ -14,44 +15,53 @@ interface ForumThreadViewProps {
 }
 
 export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClick, onCreateThread }: ForumThreadViewProps) {
-  const { data: session } = useSession()
   const [threads, setThreads] = useState<ForumThread[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState<"latest" | "popular" | "views">("latest")
 
   useEffect(() => {
-    const loadThreads = () => {
-      const categoryThreads = forumStorage.getThreads(categoryId)
-      let sortedThreads = [...categoryThreads]
+    const loadThreads = async () => {
+      try {
+        const categoryThreads = await forumStorage.getThreads(categoryId)
+        let sortedThreads = [...categoryThreads]
 
-      switch (sortBy) {
-        case "latest":
-          sortedThreads.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-          break
-        case "popular":
-          sortedThreads.sort((a, b) => b.replies - a.replies)
-          break
-        case "views":
-          sortedThreads.sort((a, b) => b.views - a.views)
-          break
+        switch (sortBy) {
+          case "latest":
+            sortedThreads.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+            break
+          case "popular":
+            sortedThreads.sort((a, b) => b.replies - a.replies)
+            break
+          case "views":
+            sortedThreads.sort((a, b) => b.views - a.views)
+            break
+        }
+
+        if (searchTerm) {
+          sortedThreads = sortedThreads.filter(thread =>
+            thread.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            thread.content.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        }
+
+        setThreads(sortedThreads)
+      } catch (error) {
+        console.error('Error loading threads:', error)
+        setThreads([])
       }
-
-      if (searchTerm) {
-        sortedThreads = sortedThreads.filter(thread =>
-          thread.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          thread.content.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      }
-
-      setThreads(sortedThreads)
     }
 
     loadThreads()
   }, [categoryId, searchTerm, sortBy])
 
-  const handleThreadClick = (threadId: string) => {
-    forumStorage.updateThreadViews(threadId)
-    onThreadClick(threadId)
+  const handleThreadClick = async (threadId: string) => {
+    try {
+      await forumStorage.updateThreadViews(threadId)
+      onThreadClick(threadId)
+    } catch (error) {
+      console.error('Error updating thread views:', error)
+      onThreadClick(threadId)
+    }
   }
 
   const formatTimeAgo = (date: Date) => {
@@ -93,15 +103,14 @@ export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClic
               </p>
             </div>
 
-            {session && (
-              <button
-                onClick={onCreateThread}
-                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center gap-2 font-medium"
-              >
-                <Plus className="w-5 h-5" />
-                Nuevo Hilo
-              </button>
-            )}
+            {/* VERSIÓN LOCAL ABIERTA - SIEMPRE MOSTRAR BOTÓN */}
+            <button
+              onClick={onCreateThread}
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center gap-2 font-medium"
+            >
+              <Plus className="w-5 h-5" />
+              Nuevo Hilo
+            </button>
           </div>
         </div>
 
@@ -138,16 +147,14 @@ export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClic
                 No hay hilos en esta categoría
               </h3>
               <p className="text-gray-500 mb-6">
-                {session ? "Sé el primero en crear un hilo" : "Inicia sesión para participar"}
+                Sé el primero en crear un hilo
               </p>
-              {session && (
-                <button
-                  onClick={onCreateThread}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
-                >
-                  Crear Primer Hilo
-                </button>
-              )}
+              <button
+                onClick={onCreateThread}
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+              >
+                Crear Primer Hilo
+              </button>
             </div>
           ) : (
             threads.map((thread) => (

@@ -1,30 +1,21 @@
 "use client";
+
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
 
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-    } else if (status === 'authenticated' && !session.user.hasPaid && session.user.email !== 'diegomanni67@gmail.com') {
-      router.push('/checkout')
-    }
-  }, [status, router, session])
+    // No redirecciones necesarias en versión local
+  }, [])
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-      </div>
-    )
-  }
-
-  if (!session) {
-    return null
+  // Mostrar perfil de invitado en versión local
+  if (true) { // Siempre mostrar perfil en versión local
+    return null // Temporal, vamos a mostrar contenido directo
   }
   const [generalInterests, setGeneralInterests] = useState(['Cine', 'Gaming']);
   const [customTags, setCustomTags] = useState(['Stranger Things', 'Radiohead']);
@@ -202,14 +193,12 @@ export default function ProfilePage() {
                 <p className="text-gray-500 text-sm">Alumno de Koterie</p>
                 
                 {/* Admin Badge */}
-                {session.user.email === 'diegomanni67@gmail.com' && (
-                  <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4 4m5.618-4.018a11.955 11.955 0 0112 2.944-2.052-.382-3.018-3.018a11.955 11.955 0 01-8.618-3.042-2.052-.382-3.018-3.018z" />
                     </svg>
-                    Modo Administrador / Acceso Total
+                    Versión Local Abierta
                   </div>
-                )}
               </div>
             </div>
 

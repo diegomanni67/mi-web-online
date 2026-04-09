@@ -1,43 +1,21 @@
 "use client"
 
-import { useSession } from 'next-auth/react'
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { ForumCategoriesDashboard } from "@/components/forum/ForumCategoriesDashboard"
 
 export default function StudioForumPage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
 
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-    } else if (status === 'authenticated') {
-      // Check for Studio level access
-      const hasStudioAccess = session.user.subscriptionLevel === 'studio' || 
-        session.user.email === 'diegomanni67@gmail.com';
-      
-      if (!hasStudioAccess) {
-        // If user has Academy level, redirect to Academy forum
-        if (session.user.subscriptionLevel === 'academy') {
-          router.push('/academy-forum');
-        } else {
-          // No subscription, redirect to checkout
-          router.push('/checkout');
-        }
-      }
-    }
-  }, [status, router, session])
+    // Sin redirecciones en versión local
+  }, [])
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-      </div>
-    )
-  }
-
-  if (!session) {
+  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
+  if (false) { // Siempre mostrar contenido en versión local
     return null
   }
   // Datos específicos para Studio

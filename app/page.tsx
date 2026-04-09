@@ -1,6 +1,7 @@
 "use client"
 
-import { useSession, signIn } from 'next-auth/react'
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { HeroCards } from '@/components/dashboard/hero-cards'
@@ -8,15 +9,11 @@ import { PricingSection } from '@/components/dashboard/pricing-section'
 import { GraduationCap, Rocket, Users, ArrowRight, User, MessageCircle, Star } from 'lucide-react'
 
 export default function HomePage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
 
-  const handleCardClick = async (destination: string) => {
-    if (status === 'unauthenticated') {
-      await signIn('google')
-    } else {
-      router.push(destination)
-    }
+  const handleCardClick = (destination: string) => {
+    // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
+    router.push(destination)
   }
 
   return (

@@ -33,13 +33,17 @@ export interface DownloadLink {
   addedAt: Date
 }
 
+// import { databaseStorage } from './database-storage' // DESACTIVADO - VERSIÓN LOCAL
+
 class ForumStorage {
   private threadsKey = 'forum_threads'
   private repliesKey = 'forum_replies'
   private materialLinksKey = 'material_links'
+  private useDatabase = false // VERSIÓN LOCAL ABIERTA - SIN SUPABASE
 
   // Threads
-  getThreads(category?: string): ForumThread[] {
+  async getThreads(category?: string): Promise<ForumThread[]> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') return []
     
     const threads = JSON.parse(localStorage.getItem(this.threadsKey) || '[]')
@@ -55,10 +59,11 @@ class ForumStorage {
     return parsedThreads
   }
 
-  saveThread(thread: Omit<ForumThread, 'id' | 'createdAt' | 'updatedAt' | 'replies' | 'views'>): ForumThread {
+  async saveThread(thread: Omit<ForumThread, 'id' | 'createdAt' | 'updatedAt' | 'replies' | 'views'>): Promise<ForumThread> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') throw new Error('Cannot save on server')
     
-    const threads = this.getThreads()
+    const threads = await this.getThreads()
     const newThread: ForumThread = {
       ...thread,
       id: Date.now().toString(),
@@ -73,15 +78,17 @@ class ForumStorage {
     return newThread
   }
 
-  getThread(id: string): ForumThread | null {
-    const threads = this.getThreads()
+  async getThread(id: string): Promise<ForumThread | null> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
+    const threads = await this.getThreads()
     return threads.find(thread => thread.id === id) || null
   }
 
-  updateThreadViews(id: string): void {
+  async updateThreadViews(id: string): Promise<void> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') return
     
-    const threads = this.getThreads()
+    const threads = await this.getThreads()
     const threadIndex = threads.findIndex(thread => thread.id === id)
     if (threadIndex !== -1) {
       threads[threadIndex].views++
@@ -91,7 +98,8 @@ class ForumStorage {
   }
 
   // Replies
-  getReplies(threadId: string): ForumReply[] {
+  async getReplies(threadId: string): Promise<ForumReply[]> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') return []
     
     const replies = JSON.parse(localStorage.getItem(this.repliesKey) || '[]')
@@ -104,7 +112,8 @@ class ForumStorage {
       .sort((a: ForumReply, b: ForumReply) => a.createdAt.getTime() - b.createdAt.getTime())
   }
 
-  saveReply(reply: Omit<ForumReply, 'id' | 'createdAt' | 'likes'>): ForumReply {
+  async saveReply(reply: Omit<ForumReply, 'id' | 'createdAt' | 'likes'>): Promise<ForumReply> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') throw new Error('Cannot save on server')
     
     const replies = JSON.parse(localStorage.getItem(this.repliesKey) || '[]')
@@ -119,7 +128,7 @@ class ForumStorage {
     localStorage.setItem(this.repliesKey, JSON.stringify(replies))
     
     // Update thread reply count
-    const threads = this.getThreads()
+    const threads = await this.getThreads()
     const threadIndex = threads.findIndex(thread => thread.id === reply.threadId)
     if (threadIndex !== -1) {
       threads[threadIndex].replies++
@@ -131,7 +140,8 @@ class ForumStorage {
   }
 
   // Material Links
-  getMaterialLinks(subcategoryId: string): DownloadLink[] {
+  async getMaterialLinks(subcategoryId: string): Promise<DownloadLink[]> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') return []
     
     const links = JSON.parse(localStorage.getItem(this.materialLinksKey) || '[]')
@@ -143,7 +153,8 @@ class ForumStorage {
       }))
   }
 
-  addMaterialLink(subcategoryId: string, link: Omit<DownloadLink, 'addedAt'>): void {
+  async addMaterialLink(subcategoryId: string, link: Omit<DownloadLink, 'addedAt'>): Promise<void> {
+    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
     if (typeof window === 'undefined') return
     
     const links = JSON.parse(localStorage.getItem(this.materialLinksKey) || '[]')

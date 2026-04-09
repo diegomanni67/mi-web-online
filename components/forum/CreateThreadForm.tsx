@@ -1,7 +1,8 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState } from "react"
-import { useSession } from "next-auth/react"
 import { forumStorage } from "@/lib/forum-storage"
 import { X, Send, Tag } from "lucide-react"
 
@@ -13,7 +14,6 @@ interface CreateThreadFormProps {
 }
 
 export function CreateThreadForm({ categoryId, categoryName, onBack, onThreadCreated }: CreateThreadFormProps) {
-  const { data: session } = useSession()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [tags, setTags] = useState<string[]>([])
@@ -24,10 +24,7 @@ export function CreateThreadForm({ categoryId, categoryName, onBack, onThreadCre
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!session) {
-      setError("Debes iniciar sesión para crear un hilo")
-      return
-    }
+    // VERSIÓN LOCAL ABIERTA - SIN VERIFICACIÓN DE SESIÓN
 
     if (!title.trim() || !content.trim()) {
       setError("El título y el contenido son obligatorios")
@@ -38,12 +35,12 @@ export function CreateThreadForm({ categoryId, categoryName, onBack, onThreadCre
     setError("")
 
     try {
-      const newThread = forumStorage.saveThread({
+      const newThread = await forumStorage.saveThread({
         title: title.trim(),
         content: content.trim(),
-        author: session.user.name || "Anonymous",
-        authorEmail: session.user.email || "",
-        authorRole: session.user.role || "Student",
+        author: "Usuario Invitado", // VERSIÓN LOCAL ABIERTA
+        authorEmail: "invitado@koterie.local",
+        authorRole: "Student",
         category: categoryId,
         pinned: false,
         tags: tags

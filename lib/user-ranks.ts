@@ -77,10 +77,6 @@ class UserRankService {
     return null
   }
 
-  // Simular login con Google
-  loginWithGoogle(email: string): UserProfile | null {
-    return this.login(email, 'google_oauth')
-  }
 
   // Obtener usuario actual
   getCurrentUser(): UserProfile | null {
@@ -151,11 +147,6 @@ export function useUserRank() {
     return loggedInUser
   }
 
-  const loginWithGoogle = (email: string) => {
-    const loggedInUser = userRankService.loginWithGoogle(email)
-    setUser(loggedInUser)
-    return loggedInUser
-  }
 
   const logout = () => {
     userRankService.logout()
@@ -170,7 +161,6 @@ export function useUserRank() {
     user,
     loading,
     login,
-    loginWithGoogle,
     logout,
     hasAccess
   }

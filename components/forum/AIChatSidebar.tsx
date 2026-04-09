@@ -1,7 +1,8 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { useState, useRef, useEffect } from "react"
-import { useSession } from "next-auth/react"
 import { MessageCircle, X, Send, Bot, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,7 +20,6 @@ interface AIChatSidebarProps {
 }
 
 export function AIChatSidebar({ forumType, isOpen, onToggle }: AIChatSidebarProps) {
-  const { data: session } = useSession()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)

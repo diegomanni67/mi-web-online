@@ -1,9 +1,10 @@
 "use client"
 
+// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+
 import { ReactNode, useState } from "react"
 import Link from "next/link"
 import { Home } from "lucide-react"
-import { useSession } from "next-auth/react"
 import { ForumHeader } from "./ForumHeader"
 import { ForumSidebar } from "./ForumSidebar"
 import { PostCard } from "./PostCard"
@@ -45,15 +46,10 @@ export function SharedForumLayout({
   activeNow,
   posts
 }: SharedForumLayoutProps) {
-  const { data: session } = useSession()
   const [isChatOpen, setIsChatOpen] = useState(false)
 
-  // Check if user has access to Studio level chat
-  const canAccessStudioChat = forumType === 'studio' && 
-    (session?.user?.subscriptionLevel === 'studio' || session?.user?.email === 'diegomanni67@gmail.com')
-
-  // For Academy, everyone has access
-  const canAccessChat = forumType === 'academy' || canAccessStudioChat
+  // VERSIÓN LOCAL ABIERTA - ACCESO UNIVERSAL AL CHAT
+  const canAccessChat = true // Todos tienen acceso en versión local
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
       {/* Background decorations */}
