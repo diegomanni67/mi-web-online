@@ -26,17 +26,15 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="#academy" className="text-blue-100 hover:text-white transition-colors">Academy</Link>
-            <Link href="/studio" className="text-blue-100 hover:text-white transition-colors">Studio</Link>
-            <Link href="#community" className="text-blue-100 hover:text-white transition-colors">Comunidad</Link>
-            <Link href="#pricing" className="text-blue-100 hover:text-white transition-colors">Precios</Link>
+            <Link href="#academy" className="text-white/50 hover:text-white transition-colors">Academy</Link>
+            <Link href="#community" className="text-white/50 hover:text-white transition-colors">Comunidad</Link>
+            <Link href="#pricing" className="text-white/50 hover:text-white transition-colors">Precios</Link>
           </nav>
 
           {/* User Actions - VERSIÓN LOCAL ABIERTA */}
           <div className="flex items-center gap-3">
-            <Link href="/community" className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-green-600 text-white hover:bg-green-700 transition-colors">
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">Comunidad</span>
+            <Link href="/auth" className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white text-slate-900 hover:bg-gray-100 transition-colors font-semibold">
+              <span className="hidden sm:inline">Inscribirse</span>
             </Link>
 
             {/* Mobile Menu Toggle */}
@@ -54,10 +52,9 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-slate-900/90 backdrop-blur-md border-t border-blue-800/50">
           <div className="px-4 py-3 space-y-2">
-            <Link href="#academy" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Academy</Link>
-            <Link href="/studio" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Studio</Link>
-            <Link href="#community" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Comunidad</Link>
-            <Link href="#pricing" className="block px-3 py-2 rounded-xl text-blue-100 hover:bg-blue-800/30">Precios</Link>
+            <Link href="#academy" className="block px-3 py-2 rounded-xl text-white/50 hover:text-white hover:bg-blue-800/30">Academy</Link>
+            <Link href="#community" className="block px-3 py-2 rounded-xl text-white/50 hover:text-white hover:bg-blue-800/30">Comunidad</Link>
+            <Link href="#pricing" className="block px-3 py-2 rounded-xl text-white/50 hover:text-white hover:bg-blue-800/30">Precios</Link>
           </div>
         </div>
       )}

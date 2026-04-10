@@ -62,63 +62,51 @@ export function PricingSection() {
   }
 
   return (
-    <div className="relative">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-[oklch(0.72_0.19_220/0.03)] via-[oklch(0.72_0.22_350/0.03)] to-[oklch(0.75_0.18_55/0.03)]" />
-        <div className="absolute -left-20 -top-20 size-60 rounded-full bg-[oklch(0.72_0.19_220/0.08)] blur-3xl animate-pulse" />
-        <div className="absolute -right-20 -bottom-20 size-60 rounded-full bg-[oklch(0.72_0.22_350/0.08)] blur-3xl animate-pulse" />
-      </div>
-
-      <div className="rounded-3xl glass border border-border/50 p-8 sm:p-10 lg:p-12">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className="flex items-center justify-center rounded-2xl bg-gradient-to-br from-[oklch(0.72_0.19_220)] to-[oklch(0.65_0.2_250)] p-3 shadow-[0_8px_30px_oklch(0.72_0.19_220/0.4)]">
-                <CreditCard className="size-6 text-[oklch(0.99_0_0)]" />
-              </div>
-              {/* Glow effect */}
-              <div className="absolute inset-0 rounded-2xl bg-[oklch(0.72_0.19_220/0.2)] blur-xl animate-pulse" />
-            </div>
+    <div className="relative max-w-md mx-auto">
+      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+        {/* Top section with purple translucent background */}
+        <div className="bg-purple-500/10 border-b border-purple-500/20 p-8 text-center">
+          {/* Plan Premium label */}
+          <div className="inline-block mb-4">
+            <span className="text-sm font-semibold uppercase tracking-wider text-purple-300">
+              Plan Premium
+            </span>
           </div>
 
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-black mb-3 sm:text-4xl">
-            Acceso Completo
-          </h2>
-          <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-            Todo el contenido de Koterie Language Studio en un solo plan
-          </p>
+          {/* Price */}
+          <div className="flex items-baseline justify-center gap-1">
+            <span className="text-2xl font-bold text-white/70">USD</span>
+            <span className="text-6xl font-extrabold text-white">
+              80
+            </span>
+            <span className="text-xl font-semibold text-white/50">/ mes</span>
+          </div>
         </div>
 
-        {/* Price Display */}
-        <div className="text-center mb-8">
-          <div className="relative inline-block">
-            {/* Background glow */}
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-[oklch(0.72_0.19_220/0.2)] via-[oklch(0.72_0.22_350/0.2)] to-[oklch(0.75_0.18_55/0.2)] blur-2xl scale-110 animate-pulse" />
-            
-            <div className="relative rounded-3xl bg-gradient-to-r from-[oklch(0.72_0.19_220)] via-[oklch(0.72_0.22_350)] to-[oklch(0.75_0.18_55)] p-1">
-              <div className="rounded-3xl bg-background p-6 sm:p-8">
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-4xl sm:text-5xl font-bold text-black">USD</span>
-                  <span className="text-6xl sm:text-7xl font-black bg-gradient-to-r from-[oklch(0.72_0.19_220)] via-[oklch(0.72_0.22_350)] to-[oklch(0.75_0.18_55)] bg-clip-text text-transparent">
-                    80
-                  </span>
-                  <span className="text-xl sm:text-2xl font-semibold text-gray-700">/ mes</span>
+        {/* Content section */}
+        <div className="p-8">
+          {/* Benefits */}
+          <div className="space-y-4 mb-8">
+            {benefits.map((benefit, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-3"
+              >
+                <div className="flex items-center justify-center rounded-full bg-purple-500/20 p-1.5">
+                  <Check className="size-4 text-purple-300" />
                 </div>
+                <span className="text-sm font-medium text-white/80">{benefit}</span>
               </div>
-            </div>
+            ))}
           </div>
-        </div>
 
-        {/* CTA Button */}
-        <div className="flex justify-center mb-8">
+          {/* CTA Button - full width */}
           <button
             className={cn(
-              "group relative overflow-hidden rounded-2xl px-8 py-4 text-lg font-bold transition-all duration-500",
-              "bg-gradient-to-r from-[oklch(0.72_0.19_220)] via-[oklch(0.72_0.22_350)] to-[oklch(0.75_0.18_55)]",
-              "text-[oklch(0.99_0_0)] shadow-[0_8px_30px_oklch(0.72_0.19_220/0.4)]",
-              "hover:shadow-[0_12px_40px_oklch(0.72_0.19_220/0.5)] hover:scale-[1.02]",
+              "group relative w-full overflow-hidden rounded-2xl px-8 py-4 text-base font-bold transition-all duration-500",
+              "bg-gradient-to-r from-violet-600 to-purple-600",
+              "text-white shadow-lg shadow-purple-500/25",
+              "hover:shadow-purple-500/40 hover:scale-[1.02]",
               "active:scale-[0.98]",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             )}
@@ -127,10 +115,7 @@ export function PricingSection() {
             onClick={handleMercadoPagoPayment}
             disabled={isLoading}
           >
-            {/* Animated shimmer effect */}
-            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[oklch(1_0_0/0.3)] to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-            
-            <div className="relative flex items-center gap-3">
+            <div className="relative flex items-center justify-center gap-3">
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -138,8 +123,7 @@ export function PricingSection() {
                 </>
               ) : (
                 <>
-                  <Zap className="size-5" />
-                  <span>Inscribirse y Pagar</span>
+                  <span>Inscribirse</span>
                   <ArrowRight className={cn(
                     "size-5 transition-transform duration-300",
                     isHovered && "translate-x-1"
@@ -148,28 +132,13 @@ export function PricingSection() {
               )}
             </div>
           </button>
-        </div>
 
-        {/* Benefits */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {benefits.map((benefit, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-3 rounded-2xl glass px-4 py-3 border border-border/50"
-            >
-              <div className="flex items-center justify-center rounded-xl bg-primary/10 p-2">
-                <Check className="size-4 text-primary" />
-              </div>
-              <span className="text-sm font-medium text-gray-800">{benefit}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer trust message */}
-        <div className="text-center mt-8 pt-6 border-t border-border/50">
-          <p className="text-xs text-gray-700">
-            Cancela cuando quieras • Sin costos ocultos • Soporte en español
-          </p>
+          {/* Footer trust message */}
+          <div className="text-center mt-6 pt-4 border-t border-white/[0.08]">
+            <p className="text-xs text-white/40">
+              Cancela cuando quieras • Sin costos ocultos
+            </p>
+          </div>
         </div>
       </div>
     </div>

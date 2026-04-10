@@ -17,17 +17,45 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col justify-center">
+    <div className="min-h-screen bg-[#0a0f1e] flex flex-col justify-center">
 
       {/* Hero Section */}
       <section id="hero" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 via-blue-100/20 to-transparent" />
-        <div className="relative mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8 flex justify-center items-start">
+        <div className="relative mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+          {/* Logo */}
           <img 
             src="/isologo-premium.png" 
             alt="Koterie Language Studio Premium" 
-            className="w-[350px] h-auto rounded-3xl drop-shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+            className="w-[300px] h-auto rounded-3xl drop-shadow-[0_0_20px_rgba(212,175,55,0.2)] mb-8"
           />
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30 mb-8">
+            <span className="text-purple-300 text-sm font-medium">Club premium de idiomas</span>
+          </div>
+
+          {/* H1 with gradient */}
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6">
+            Tu inglés,{" "}
+            <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
+              al siguiente nivel
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-xl text-white/50 max-w-2xl mb-10">
+            Únete a la comunidad más exclusiva de aprendizaje de inglés. Practica, conecta y crece con estudiantes de todo el mundo.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button className="px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all shadow-lg shadow-purple-500/25">
+              Empezar ahora
+            </button>
+            <button className="px-8 py-4 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold hover:bg-white/20 transition-all backdrop-blur-sm">
+              Conocer más
+            </button>
+          </div>
         </div>
       </section>
 
@@ -37,7 +65,7 @@ export default function HomePage() {
       </section>
 
       {/* Community Section */}
-      <section id="community" className="py-24 bg-gradient-to-br from-slate-800 to-blue-900">
+      <section id="community" className="py-24 border-t border-white/[0.06]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -48,46 +76,45 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-2">
-            {/* Community Features */}
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100 text-purple-600">
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Community Features Cards */}
+            <div className="grid gap-4">
+              <div className="flex items-start gap-4 p-5 rounded-2xl border border-white/[0.07] bg-white/[0.03]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300">
                   <Users className="h-6 w-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Comunidad Activa</h3>
-                  <p className="mt-1 text-blue-100">Aprende junto a otros estudiantes</p>
+                  <p className="mt-1 text-white/50">Aprende junto a otros estudiantes</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600">
+              <div className="flex items-start gap-4 p-5 rounded-2xl border border-white/[0.07] bg-white/[0.03]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/20 text-blue-300">
                   <MessageCircle className="h-6 w-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Salas de Voz</h3>
-                  <p className="mt-1 text-blue-100">Practica tu inglés en tiempo real</p>
+                  <p className="mt-1 text-white/50">Practica tu inglés en tiempo real</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-600">
+              <div className="flex items-start gap-4 p-5 rounded-2xl border border-white/[0.07] bg-white/[0.03]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/20 text-green-300">
                   <Star className="h-6 w-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Eventos Exclusivos</h3>
-                  <p className="mt-1 text-blue-100">Seminarios y workshops mensuales</p>
+                  <p className="mt-1 text-white/50">Seminarios y workshops mensuales</p>
                 </div>
               </div>
             </div>
 
             {/* Discord CTA */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 to-blue-600 p-8 text-white">
-              <div className="absolute inset-0 bg-black/10"></div>
+            <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-900/20 to-purple-800/10 p-8 text-white">
               <div className="relative z-10">
                 <h3 className="text-2xl font-bold mb-4">Únete a nuestro Discord</h3>
-                <p className="mb-6 text-purple-100">
+                <p className="mb-6 text-white/60">
                   La comunidad más activa de aprendizaje de inglés. Chatea, participa en eventos y encuentra compañeros de estudio.
                 </p>
                 <a
@@ -107,7 +134,7 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 bg-gradient-to-br from-slate-900 to-blue-900">
+      <section id="pricing" className="py-24 border-t border-white/[0.06]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <PricingSection />
         </div>
@@ -118,13 +145,8 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-4">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <img 
-                  src="/koterie-logo-transparent.png" 
-                  alt="Koterie Language Studio" 
-                  className="h-10 w-auto"
-                />
-                <span className="text-xl font-bold">Koterie</span>
+              <div className="mb-4">
+                <span className="text-xl font-bold">Koterie Language Studio</span>
               </div>
               <p className="text-gray-400">
                 Tu club social premium de idiomas
@@ -132,7 +154,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Aprender</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-4">Aprender</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><Link href="#academy" className="hover:text-white transition-colors">Academy</Link></li>
                 <li><Link href="#studio" className="hover:text-white transition-colors">Studio</Link></li>
@@ -141,7 +163,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Comunidad</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-4">Comunidad</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><Link href="#community" className="hover:text-white transition-colors">Miembros</Link></li>
                 <li><a href="https://discord.gg/5EaYtrz7R7" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Discord</a></li>
@@ -150,7 +172,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Soporte</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-4">Soporte</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><Link href="/help" className="hover:text-white transition-colors">Ayuda</Link></li>
                 <li><Link href="/contact" className="hover:text-white transition-colors">Contacto</Link></li>
@@ -160,7 +182,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
-            <p>&copy; 2024 Koterie Language Studio. Todos los derechos reservados.</p>
+            <p>&copy; 2026 Koterie Language Studio. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>

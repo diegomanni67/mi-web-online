@@ -64,10 +64,10 @@ function HeroCard({
   return (
     <button
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-3xl text-left transition-all duration-500 ease-out",
-        "bg-slate-900 border border-slate-600",
+        "group relative flex flex-col overflow-hidden rounded-2xl text-left transition-all duration-500 ease-out",
+        "bg-white/[0.03] border border-white/[0.08]",
         isHovered
-          ? "scale-[1.02] border-slate-500"
+          ? "scale-[1.02] border-white/[0.15]"
           : ""
       )}
       onMouseEnter={onHover}
@@ -97,7 +97,10 @@ function HeroCard({
         <div className="absolute left-4 top-4">
           <span
             className={cn(
-              "flex items-center gap-1.5 rounded-2xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest bg-slate-900/80 text-white border border-slate-600"
+              "flex items-center gap-1.5 rounded-2xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white border",
+              isAcademy
+                ? "bg-blue-500/20 border-blue-500/30"
+                : "bg-pink-500/20 border-pink-500/30"
             )}
           >
             <Icon className="size-3" />
@@ -128,8 +131,7 @@ function HeroCard({
                 </h3>
                 <p
                   className={cn(
-                    "text-[11px] font-bold uppercase tracking-[0.2em]",
-                    isAcademy ? "text-blue-300" : "text-pink-300"
+                    "text-[11px] font-bold uppercase tracking-[0.2em] text-white/50"
                   )}
                 >
                   {tagline}
@@ -166,16 +168,12 @@ function HeroCard({
             <span
               key={feature.label}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium",
-                isAcademy
-                  ? "bg-blue-900/50 text-blue-200"
-                  : "bg-pink-900/50 text-pink-200"
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium bg-white/[0.05] text-white/70 border border-white/[0.08]"
               )}
             >
               <feature.icon
                 className={cn(
-                  "size-3 shrink-0",
-                  isAcademy ? "text-blue-200" : "text-pink-200"
+                  "size-3 shrink-0 text-white/50"
                 )}
               />
               {feature.label}
