@@ -1,11 +1,9 @@
 "use client"
 
-// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
-
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { academyForumStorage, studioForumStorage, ForumThread } from "@/lib/forum-storage"
-import { MessageCircle, Eye, Pin, Clock, Plus, Search } from "lucide-react"
-import { initializeDemoData, academyDemoThreads, studioDemoThreads } from "@/lib/forum-demo-data"
+import { useMember } from "@/components/member/useMember"
+import { Eye, MessageCircle, Pin, Plus, Search } from "lucide-react"
 
 interface ForumThreadViewProps {
   categoryId: string
@@ -18,224 +16,124 @@ interface ForumThreadViewProps {
 
 export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClick, onCreateThread, forumType = 'academy' }: ForumThreadViewProps) {
   const forumStorage = forumType === 'academy' ? academyForumStorage : studioForumStorage
-  const demoThreads = forumType === 'academy' ? academyDemoThreads : studioDemoThreads
+  const { member, loading: memberLoading } = useMember()
+  const canPost = forumType === 'academy' || member?.access === 'studio' || member?.role === 'teacher' || member?.role === 'admin'
   const [threads, setThreads] = useState<ForumThread[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortBy, setSortBy] = useState<"latest" | "popular" | "views">("latest")
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'views'>('latest')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    // Initialize demo data if localStorage is empty
-    initializeDemoData(forumType)
+    let active = true
+    setLoading(true)
+    setError('')
+    forumStorage.getThreads(categoryId)
+      .then((result) => active && setThreads(result))
+      .catch(() => active && setError('No pudimos cargar las conversaciones.'))
+      .finally(() => active && setLoading(false))
+    return () => { active = false }
+  }, [categoryId, forumType])
 
-    const loadThreads = async () => {
-      try {
-        let categoryThreads = await forumStorage.getThreads(categoryId)
-        console.log('Loaded threads for category:', categoryId, categoryThreads.length)
+  const visibleThreads = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase()
+    const result = term
+      ? threads.filter((thread) => `${thread.title} ${thread.content} ${thread.author}`.toLowerCase().includes(term))
+      : [...threads]
 
-        // If no threads in localStorage for this category, use demo data directly
-        if (categoryThreads.length === 0) {
-          const categoryDemoThreads = demoThreads.filter(thread => thread.category === categoryId)
-          console.log('Using demo threads for category:', categoryId, categoryDemoThreads.length)
-          categoryThreads = categoryDemoThreads
-        }
+    result.sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
+      if (sortBy === 'popular') return b.replies - a.replies
+      if (sortBy === 'views') return b.views - a.views
+      return b.updatedAt.getTime() - a.updatedAt.getTime()
+    })
+    return result
+  }, [threads, searchTerm, sortBy])
 
-        let sortedThreads = [...categoryThreads]
-
-        switch (sortBy) {
-          case "latest":
-            sortedThreads.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-            break
-          case "popular":
-            sortedThreads.sort((a, b) => b.replies - a.replies)
-            break
-          case "views":
-            sortedThreads.sort((a, b) => b.views - a.views)
-            break
-        }
-
-        if (searchTerm) {
-          sortedThreads = sortedThreads.filter(thread =>
-            thread.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            thread.content.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }
-
-        setThreads(sortedThreads)
-      } catch (error) {
-        console.error('Error loading threads:', error)
-        setThreads([])
-      }
-    }
-
-    loadThreads()
-  }, [categoryId, searchTerm, sortBy])
-
-  const handleThreadClick = async (threadId: string) => {
-    try {
-      await forumStorage.updateThreadViews(threadId)
-      onThreadClick(threadId)
-    } catch (error) {
-      console.error('Error updating thread views:', error)
-      onThreadClick(threadId)
-    }
+  function timeAgo(date: Date) {
+    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000))
+    if (minutes < 60) return minutes < 2 ? 'just now' : `${minutes} min ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    return `${days}d ago`
   }
 
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date()
-    const diffInMs = now.getTime() - date.getTime()
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
-    const diffInDays = Math.floor(diffInHours / 24)
-
-    if (diffInDays > 0) {
-      return `Hace ${diffInDays} día${diffInDays > 1 ? 's' : ''}`
-    } else if (diffInHours > 0) {
-      return `Hace ${diffInHours} hora${diffInHours > 1 ? 's' : ''}`
-    } else {
-      return "Hace unos minutos"
-    }
+  async function openThread(id: string) {
+    onThreadClick(id)
+    void forumStorage.updateThreadViews(id)
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={onBack}
-            className="mb-6 px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg hover:bg-white/20 transition-all duration-300 border border-white/20"
-          >
-            <span className="flex items-center gap-2">
-              <span>Back to Categories</span>
-            </span>
-          </button>
+    <main className="min-h-screen bg-[#0a0f1e] px-4 py-10 text-white sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        <button onClick={onBack} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white">← Back to community</button>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                {categoryName}
-              </h1>
-              <p className="text-gray-400">
-                {threads.length} hilo{threads.length !== 1 ? 's' : ''} en esta categoría
-              </p>
-            </div>
-
-            {/* VERSIÓN LOCAL ABIERTA - SIEMPRE MOSTRAR BOTÓN */}
-            <button
-              onClick={onCreateThread}
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center gap-2 font-medium"
-            >
-              <Plus className="w-5 h-5" />
-              Nuevo Hilo
-            </button>
+        <div className="mt-7 flex flex-col gap-5 border-b border-white/[0.07] pb-7 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-purple-300">{forumType === 'studio' ? 'Studio' : 'Academy'}</p>
+            <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{categoryName}</h1>
+            <p className="mt-2 text-sm text-white/40">Real conversations from the Koterie community.</p>
           </div>
+          {memberLoading ? (
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/35">Checking access…</div>
+          ) : canPost ? (
+            <button onClick={onCreateThread} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 py-3 font-bold text-white transition hover:brightness-110">
+              <Plus className="h-4 w-4" /> Start a conversation
+            </button>
+          ) : (
+            <div className="rounded-xl border border-pink-500/20 bg-pink-500/10 px-4 py-3 text-sm text-pink-200">Studio is read-only with Academy access.</div>
+          )}
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-6 flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar hilos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10 focus:border-purple-500/50 focus:outline-none transition-all duration-300"
-            />
+        <div className="mt-6 flex flex-col gap-3 md:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search conversations..." className="w-full rounded-xl border border-white/10 bg-white/[0.035] py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-white/25 focus:border-purple-400/35" />
           </div>
-
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "latest" | "popular" | "views")}
-            className="px-4 py-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10 focus:border-purple-500/50 focus:outline-none transition-all duration-300"
-          >
-            <option value="latest">Más recientes</option>
-            <option value="popular">Más populares</option>
-            <option value="views">Más vistos</option>
+          <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="rounded-xl border border-white/10 bg-[#10172a] px-4 py-3 text-sm text-white/70 outline-none">
+            <option value="latest">Latest</option>
+            <option value="popular">Most replies</option>
+            <option value="views">Most viewed</option>
           </select>
         </div>
 
-        {/* Threads List */}
-        <div className="space-y-4">
-          {threads.length === 0 ? (
-            <div className="text-center py-12">
-              <MessageCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                No hay hilos en esta categoría
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Sé el primero en crear un hilo
-              </p>
-              <button
-                onClick={onCreateThread}
-                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
-              >
-                Crear Primer Hilo
-              </button>
+        <div className="mt-6 space-y-3">
+          {loading && <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-8 text-center text-sm text-white/40">Loading conversations…</div>}
+          {error && <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-sm text-red-200">{error}</div>}
+          {!loading && !error && visibleThreads.length === 0 && (
+            <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-12 text-center">
+              <MessageCircle className="mx-auto h-10 w-10 text-white/20" />
+              <h2 className="mt-4 text-xl font-bold">No conversations yet.</h2>
+              <p className="mt-2 text-sm text-white/40">Start the first conversation in this topic and give the community something to respond to.</p>
+              {canPost && <button onClick={onCreateThread} className="mt-6 rounded-xl bg-purple-600 px-5 py-3 text-sm font-bold transition hover:bg-purple-500">Start the first one</button>}
             </div>
-          ) : (
-            threads.map((thread) => (
-              <button
-                key={thread.id}
-                onClick={() => handleThreadClick(thread.id)}
-                className="w-full p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 text-left group"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      {thread.pinned && (
-                        <Pin className="w-4 h-4 text-yellow-400" />
-                      )}
-                      <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
-                        {thread.title}
-                      </h3>
-                    </div>
+          )}
 
-                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                      {thread.content}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-purple-400">{thread.author}</span>
-                        <span className="text-gray-600">({thread.authorRole})</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTimeAgo(thread.updatedAt)}</span>
-                      </div>
-                      {thread.tags.length > 0 && (
-                        <div className="flex gap-2">
-                          {thread.tags.map((tag, index) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+          {!loading && !error && visibleThreads.map((thread) => (
+            <button key={thread.id} onClick={() => openThread(thread.id)} className="group w-full rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 text-left transition hover:border-purple-400/25 hover:bg-white/[0.05] sm:p-6">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    {thread.pinned && <Pin className="h-4 w-4 text-amber-300" />}
+                    <h2 className="text-lg font-bold text-white transition group-hover:text-purple-300">{thread.title}</h2>
                   </div>
-
-                  <div className="flex flex-col items-end gap-2 text-sm">
-                    <div className="flex items-center gap-3 text-gray-400">
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="w-4 h-4" />
-                        <span>{thread.replies}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        <span>{thread.views}</span>
-                      </div>
-                    </div>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/45">{thread.content}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/30">
+                    <span className="font-semibold text-purple-300/80">{thread.author}</span>
+                    <span>{timeAgo(thread.updatedAt)}</span>
+                    {thread.tags.slice(0, 3).map((tag) => <span key={tag} className="rounded-full bg-white/5 px-2 py-1">#{tag}</span>)}
                   </div>
                 </div>
-              </button>
-            ))
-          )}
+                <div className="hidden shrink-0 items-start gap-3 text-xs text-white/30 sm:flex">
+                  <span className="inline-flex items-center gap-1"><MessageCircle className="h-4 w-4" /> {thread.replies}</span>
+                  <span className="inline-flex items-center gap-1"><Eye className="h-4 w-4" /> {thread.views}</span>
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+    </main>
   )
 }

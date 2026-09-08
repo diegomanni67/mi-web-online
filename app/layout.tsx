@@ -5,44 +5,17 @@ import { Providers } from '@/components/Providers'
 import { Header } from '@/components/Header'
 import './globals.css'
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-})
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-space-grotesk',
-})
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' })
 
 export const metadata: Metadata = {
-  title: 'Koterie Language Studio | Clases de inglés + comunidad + IA',
-  description: 'Clases de inglés en vivo, práctica entre clases, comunidad, actividades y herramientas de IA en una misma plataforma.',
-  icons: {
-    icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
-  },
+  title: 'Koterie Language Studio | Clases de inglés + comunidad',
+  description: 'Clases de inglés en vivo, práctica entre clases, comunidad, actividades y herramientas digitales en una misma plataforma.',
+  icons: { icon: [{ url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' }, { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' }, { url: '/icon.svg', type: 'image/svg+xml' }], apple: '/apple-icon.png' },
 }
 
-export const viewport: Viewport = {
-  themeColor: '#0a0f1e',
-  userScalable: true,
-}
+export const viewport: Viewport = { themeColor: '#0a0f1e', userScalable: true }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="es">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
-        <Providers>
-          <Header />
-          {children}
-          <Analytics />
-        </Providers>
-      </body>
-    </html>
-  )
+  return <html lang="es"><body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}><Providers><Header />{children}<Analytics /></Providers></body></html>
 }

@@ -33,148 +33,72 @@ export interface DownloadLink {
   addedAt: Date
 }
 
-// import { databaseStorage } from './database-storage' // DESACTIVADO - VERSIÓN LOCAL
+function hydrateThread(raw: any): ForumThread {
+  return { ...raw, createdAt: new Date(raw.createdAt), updatedAt: new Date(raw.updatedAt), tags: raw.tags || [] }
+}
+function hydrateReply(raw: any): ForumReply {
+  return { ...raw, createdAt: new Date(raw.createdAt) }
+}
 
 class ForumStorage {
-  private forumType: 'academy' | 'studio'
-  private threadsKey: string
-  private repliesKey: string
-  private materialLinksKey: string
-  private useDatabase = false // VERSIÓN LOCAL ABIERTA - SIN SUPABASE
+  constructor(private forumType: 'academy' | 'studio' = 'academy') {}
 
-  constructor(forumType: 'academy' | 'studio' = 'academy') {
-    this.forumType = forumType
-    this.threadsKey = `forum_threads_${forumType}`
-    this.repliesKey = `forum_replies_${forumType}`
-    this.materialLinksKey = `material_links_${forumType}`
-  }
-
-  // Threads
   async getThreads(category?: string): Promise<ForumThread[]> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    if (typeof window === 'undefined') return []
-
-    const threads = JSON.parse(localStorage.getItem(this.threadsKey) || '[]')
-    const parsedThreads = threads.map((thread: any) => ({
-      ...thread,
-      createdAt: thread.createdAt instanceof Date ? thread.createdAt : new Date(thread.createdAt),
-      updatedAt: thread.updatedAt instanceof Date ? thread.updatedAt : new Date(thread.updatedAt)
-    }))
-
-    if (category) {
-      return parsedThreads.filter((thread: ForumThread) => thread.category === category)
-    }
-    return parsedThreads
+    const params = new URLSearchParams({ space: this.forumType })
+    if (category) params.set('category', category)
+    const response = await fetch(`/api/forum/threads?${params.toString()}`, { cache: 'no-store' })
+    if (!response.ok) throw new Error('Could not load discussions')
+    const data = await response.json()
+    return (data.threads || []).map(hydrateThread)
   }
 
   async saveThread(thread: Omit<ForumThread, 'id' | 'createdAt' | 'updatedAt' | 'replies' | 'views'>): Promise<ForumThread> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    if (typeof window === 'undefined') throw new Error('Cannot save on server')
-    
-    const threads = await this.getThreads()
-    const newThread: ForumThread = {
-      ...thread,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      replies: 0,
-      views: 0
-    }
-    
-    threads.push(newThread)
-    localStorage.setItem(this.threadsKey, JSON.stringify(threads))
-    return newThread
+    const response = await fetch('/api/forum/threads', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        space: this.forumType, category: thread.category,
+        title: thread.title, content: thread.content, tags: thread.tags,
+      }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Could not publish discussion')
+    return hydrateThread(data.thread)
   }
 
   async getThread(id: string): Promise<ForumThread | null> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    const threads = await this.getThreads()
-    return threads.find(thread => thread.id === id) || null
+    const response = await fetch(`/api/forum/threads/${encodeURIComponent(id)}`, { cache: 'no-store' })
+    if (response.status === 404) return null
+    if (!response.ok) throw new Error('Could not load discussion')
+    const data = await response.json()
+    return hydrateThread(data.thread)
   }
 
   async updateThreadViews(id: string): Promise<void> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    if (typeof window === 'undefined') return
-    
-    const threads = await this.getThreads()
-    const threadIndex = threads.findIndex(thread => thread.id === id)
-    if (threadIndex !== -1) {
-      threads[threadIndex].views++
-      threads[threadIndex].updatedAt = new Date()
-      localStorage.setItem(this.threadsKey, JSON.stringify(threads))
-    }
+    await fetch(`/api/forum/threads/${encodeURIComponent(id)}`, { method: 'PATCH' })
   }
 
-  // Replies
   async getReplies(threadId: string): Promise<ForumReply[]> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    if (typeof window === 'undefined') return []
-
-    const replies = JSON.parse(localStorage.getItem(this.repliesKey) || '[]')
-    return replies
-      .filter((reply: any) => reply.threadId === threadId)
-      .map((reply: any) => ({
-        ...reply,
-        createdAt: reply.createdAt instanceof Date ? reply.createdAt : new Date(reply.createdAt)
-      }))
-      .sort((a: ForumReply, b: ForumReply) => a.createdAt.getTime() - b.createdAt.getTime())
+    const response = await fetch(`/api/forum/replies?threadId=${encodeURIComponent(threadId)}`, { cache: 'no-store' })
+    if (!response.ok) throw new Error('Could not load replies')
+    const data = await response.json()
+    return (data.replies || []).map(hydrateReply)
   }
 
   async saveReply(reply: Omit<ForumReply, 'id' | 'createdAt' | 'likes'>): Promise<ForumReply> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    if (typeof window === 'undefined') throw new Error('Cannot save on server')
-    
-    const replies = JSON.parse(localStorage.getItem(this.repliesKey) || '[]')
-    const newReply: ForumReply = {
-      ...reply,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      likes: 0
-    }
-    
-    replies.push(newReply)
-    localStorage.setItem(this.repliesKey, JSON.stringify(replies))
-    
-    // Update thread reply count
-    const threads = await this.getThreads()
-    const threadIndex = threads.findIndex(thread => thread.id === reply.threadId)
-    if (threadIndex !== -1) {
-      threads[threadIndex].replies++
-      threads[threadIndex].updatedAt = new Date()
-      localStorage.setItem(this.threadsKey, JSON.stringify(threads))
-    }
-    
-    return newReply
+    const response = await fetch('/api/forum/replies', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        threadId: reply.threadId,
+        content: reply.content, parentId: reply.parentId,
+      }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error || 'Could not publish reply')
+    return hydrateReply(data.reply)
   }
 
-  // Material Links
-  async getMaterialLinks(subcategoryId: string): Promise<DownloadLink[]> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    if (typeof window === 'undefined') return []
-    
-    const links = JSON.parse(localStorage.getItem(this.materialLinksKey) || '[]')
-    return links
-      .filter((link: any) => link.subcategoryId === subcategoryId)
-      .map((link: any) => ({
-        ...link,
-        addedAt: new Date(link.addedAt)
-      }))
-  }
-
-  async addMaterialLink(subcategoryId: string, link: Omit<DownloadLink, 'addedAt'>): Promise<void> {
-    // VERSIÓN LOCAL ABIERTA - SOLO LOCALSTORAGE
-    if (typeof window === 'undefined') return
-    
-    const links = JSON.parse(localStorage.getItem(this.materialLinksKey) || '[]')
-    const newLink = {
-      ...link,
-      subcategoryId,
-      addedAt: new Date()
-    }
-    
-    links.push(newLink)
-    localStorage.setItem(this.materialLinksKey, JSON.stringify(links))
-  }
+  async getMaterialLinks(_subcategoryId: string): Promise<DownloadLink[]> { return [] }
+  async addMaterialLink(): Promise<void> { throw new Error('Materials are managed by teachers') }
 }
 
 export const forumStorage = new ForumStorage('academy')

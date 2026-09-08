@@ -1,418 +1,99 @@
-"use client";
+"use client"
 
-// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { ArrowLeft, Check, Plus, Save, Sparkles, X } from 'lucide-react'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'
+type Profile = {
+  id: string; email: string; name: string; role: 'student'|'teacher'|'admin'; access: 'academy'|'studio';
+  bio: string; goals: string[]; interests: string[]; conversationTopics: string[]; availability: string; avatarColor: string
+}
+
+const interestOptions = ['Movies & series','Music','Travel','Food','Gaming','Technology','Sports','Books','Work','Culture','Art','Current affairs']
+const topicOptions = ['Daily life','Travel stories','Films & TV','Music','Work & careers','Technology & AI','Food','Sports','Culture','News','Books','Personal goals']
+const colors: Record<string,string> = {
+  violet:'from-violet-500 to-fuchsia-500', blue:'from-blue-500 to-cyan-400', pink:'from-pink-500 to-rose-400',
+  emerald:'from-emerald-500 to-teal-400', amber:'from-amber-400 to-orange-500', cyan:'from-cyan-400 to-blue-500'
+}
+
+function TagPicker({ options, value, onChange }: { options:string[]; value:string[]; onChange:(next:string[])=>void }) {
+  return <div className="flex flex-wrap gap-2">{options.map(option => {
+    const selected=value.includes(option)
+    return <button type="button" key={option} onClick={() => onChange(selected ? value.filter(item=>item!==option) : [...value, option])} className={`rounded-full border px-3 py-2 text-xs font-semibold transition ${selected ? 'border-purple-400/30 bg-purple-500/15 text-purple-200' : 'border-white/10 bg-white/[0.025] text-white/45 hover:text-white'}`}>{selected ? '✓ ' : '+ '}{option}</button>
+  })}</div>
+}
 
 export default function ProfilePage() {
-  const router = useRouter()
+  const [profile,setProfile]=useState<Profile|null>(null)
+  const [loading,setLoading]=useState(true)
+  const [saving,setSaving]=useState(false)
+  const [message,setMessage]=useState('')
+  const [goalInput,setGoalInput]=useState('')
 
-  // VERSIÓN LOCAL ABIERTA - ACCESO DIRECTO
-  useEffect(() => {
-    // No redirecciones necesarias en versión local
-  }, [])
+  useEffect(()=>{
+    fetch('/api/profile',{cache:'no-store'})
+      .then(r=>r.ok?r.json():Promise.reject())
+      .then(data=>setProfile(data.profile))
+      .catch(()=>setMessage('No pudimos cargar tu perfil.'))
+      .finally(()=>setLoading(false))
+  },[])
 
-  // Mostrar perfil de invitado en versión local
-  if (true) { // Siempre mostrar perfil en versión local
-    return null // Temporal, vamos a mostrar contenido directo
+  const initials=useMemo(()=>profile?.name?.split(/\s+/).map(part=>part[0]).join('').slice(0,2).toUpperCase()||'K',[profile?.name])
+
+  function addGoal(){
+    if(!profile) return
+    const goal=goalInput.trim()
+    if(!goal || profile.goals.some(item=>item.toLowerCase()===goal.toLowerCase()) || profile.goals.length>=8) return
+    setProfile({...profile,goals:[...profile.goals,goal]});setGoalInput('')
   }
-  const [generalInterests, setGeneralInterests] = useState(['Cine', 'Gaming']);
-  const [customTags, setCustomTags] = useState(['Stranger Things', 'Radiohead']);
-  const [customTagInput, setCustomTagInput] = useState('');
-  const [bio, setBio] = useState('Estoy aprendiendo inglés porque quiero trabajar en el exterior y conocer nuevas culturas. Me encanta el cine independiente y la música de los 90s.');
-  const [connectionStatus, setConnectionStatus] = useState<{[key: string]: boolean}>({});
-  const [newMessage, setNewMessage] = useState('');
-  const [animatingTag, setAnimatingTag] = useState<string | null>(null);
-  
-  const availableGeneralInterests = ['Cine', 'Gaming', 'Cripto', 'Música', 'Viajes', 'Cocina', 'Deportes', 'Tecnología'];
-  
-  // Base de datos simulada de alumnos
-  const allStudents = [
-    { 
-      id: '1', 
-      name: 'Ana Martínez', 
-      generalInterests: ['Cine', 'Viajes', 'Música'], 
-      customTags: ['Stranger Things', 'Radiohead', 'The Bear'],
-    },
-    { 
-      id: '2', 
-      name: 'Carlos Rodríguez', 
-      generalInterests: ['Gaming', 'Tecnología', 'Cripto'], 
-      customTags: ['Manchester City', 'Star Wars', 'The Bear'],
-    },
-    { 
-      id: '3', 
-      name: 'Lucía Fernández', 
-      generalInterests: ['Cocina', 'Viajes', 'Deportes'], 
-      customTags: ['MasterChef', 'Yoga', 'Stranger Things'],
-    },
-    { 
-      id: '4', 
-      name: 'Diego Silva', 
-      generalInterests: ['Música', 'Deportes', 'Tecnología'], 
-      customTags: ['Radiohead', 'The Bear', 'Gaming'],
-    },
-    { 
-      id: '5', 
-      name: 'Sofía Torres', 
-      generalInterests: ['Cine', 'Arte', 'Viajes'], 
-      customTags: ['Stranger Things', 'MasterChef', 'Star Wars'],
-    }
-  ];
 
-  // Algoritmo de matches reales basado en intereses específicos
-  const getMatchingStudents = () => {
-    return allStudents
-      .map(student => {
-        const exactMatches = customTags.filter(tag => student.customTags.includes(tag));
-        const generalMatches = generalInterests.filter(interest => student.generalInterests.includes(interest));
-        const sharedCount = exactMatches.length + generalMatches.length;
-        
-        return {
-          ...student,
-          exactMatches,
-          generalMatches,
-          sharedCount,
-          hasSpecificMatch: exactMatches.length > 0
-        };
-      })
-      .filter(student => student.sharedCount > 0)
-      .sort((a, b) => {
-        // Priorizar matches específicos
-        if (a.hasSpecificMatch && !b.hasSpecificMatch) return -1;
-        if (!a.hasSpecificMatch && b.hasSpecificMatch) return 1;
-        // Luego por cantidad total de matches
-        return b.sharedCount - a.sharedCount;
-      })
-      .slice(0, 3);
-  };
+  async function save(){
+    if(!profile||saving)return
+    setSaving(true);setMessage('')
+    try{
+      const response=await fetch('/api/profile',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(profile)})
+      const data=await response.json()
+      if(!response.ok) throw new Error(data.error||'Error')
+      setProfile(data.profile);setMessage('Perfil guardado.')
+    }catch(error:any){setMessage(error?.message||'No pudimos guardar tu perfil.')}
+    finally{setSaving(false)}
+  }
 
-  const matchingStudents = getMatchingStudents();
+  if(loading) return <main className="min-h-screen bg-[#0a0f1e] px-4 py-16 text-center text-sm text-white/40">Loading profile…</main>
+  if(!profile) return <main className="min-h-screen bg-[#0a0f1e] px-4 py-16 text-center text-white"><p>{message||'Profile unavailable.'}</p><Link href="/dashboard" className="mt-5 inline-block text-purple-300">Volver</Link></main>
 
-  const [chatMessages, setChatMessages] = useState([
-    { sender: 'system', text: '¡Bienvenido a la logia de Koterie! Completá tus intereses para que otros miembros puedan encontrarte.', time: '10:00' },
-    { sender: 'teacher', text: '¡Hola! Bienvenido a Koterie. ¿Cuándo te queda bien hacer la nivelación?', time: '10:01' },
-    { sender: 'student', text: 'Hola, ¡muchas gracias! Mañana por la tarde puedo.', time: '10:02' },
-    { sender: 'teacher', text: 'Perfecto, agendado para las 18:00hs.', time: '10:03' }
-  ]);
+  return <main className="min-h-screen bg-[#0a0f1e] px-4 py-10 text-white sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-5xl">
+      <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-white/45 hover:text-white"><ArrowLeft className="h-4 w-4"/> Student area</Link>
+      <div className="mt-7 grid gap-7 lg:grid-cols-[280px_1fr]">
+        <aside className="rounded-[2rem] border border-white/[0.08] bg-white/[0.03] p-6 text-center lg:sticky lg:top-24 lg:self-start">
+          <div className={`mx-auto flex h-28 w-28 items-center justify-center rounded-[2rem] bg-gradient-to-br ${colors[profile.avatarColor]||colors.violet} text-3xl font-black shadow-2xl shadow-black/25`}>{initials}</div>
+          <h1 className="mt-5 text-2xl font-bold">{profile.name}</h1>
+          <p className="mt-1 text-sm text-white/35">{profile.email}</p>
+          <div className="mt-4 flex justify-center gap-2"><span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] ${profile.access==='studio'?'bg-pink-500/10 text-pink-300':'bg-blue-500/10 text-blue-300'}`}>{profile.access}</span>{profile.role!=='student'&&<span className="rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] text-amber-300">{profile.role}</span>}</div>
+          <p className="mt-6 text-xs leading-5 text-white/30">Tu email no se muestra a otros alumnos. Academy/Studio y el rol los gestionan las profesoras.</p>
+        </aside>
 
-  const handleGeneralInterestToggle = (interest: string) => {
-    setGeneralInterests(prev => 
-      prev.includes(interest) 
-        ? prev.filter(i => i !== interest)
-        : [...prev, interest]
-    );
-  };
+        <section className="space-y-5">
+          <div><div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-purple-300"><Sparkles className="h-4 w-4"/> Mi perfil</div><h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Make your profile useful for conversation.</h2><p className="mt-3 max-w-2xl leading-7 text-white/45">Elegí intereses y temas reales. Eso ayuda a encontrar personas con algo de qué hablar, sin convertir Koterie en una red social genérica.</p></div>
 
-  const handleCustomTagInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value.trim();
-    
-    if ((e.key === 'Enter' || e.key === ',') && value) {
-      e.preventDefault();
-      const newTag = value.replace(',', '').trim();
-      
-      if (!customTags.includes(newTag) && newTag.length > 0) {
-        // Animación explosiva
-        setAnimatingTag(newTag);
-        setTimeout(() => setAnimatingTag(null), 300);
-        
-        setCustomTags(prev => [...prev, newTag]);
-      }
-      setCustomTagInput('');
-    }
-  };
-
-  const removeCustomTag = (tagToRemove: string) => {
-    setCustomTags(prev => prev.filter(tag => tag !== tagToRemove));
-  };
-
-  const handleConnect = (studentId: string) => {
-    setConnectionStatus(prev => ({ ...prev, [studentId]: true }));
-  };
-
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const newMsg = {
-        sender: 'student' as const,
-        text: newMessage.trim(),
-        time: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-      };
-      setChatMessages(prev => [...prev, newMsg]);
-      setNewMessage('');
-      
-      // Simular respuesta del profesor
-      setTimeout(() => {
-        const teacherResponse = {
-          sender: 'teacher' as const,
-          text: 'Gracias por tu mensaje. Te responderé pronto.',
-          time: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-        };
-        setChatMessages(prev => [...prev, teacherResponse]);
-      }, 1000);
-    }
-  };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => window.history.back()}
-                className="p-2 rounded-2xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <h1 className="text-xl font-bold text-gray-900">Mi Perfil</h1>
-            </div>
-            <div className="text-sm text-gray-500">Espacio exclusivo de la Koterie</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Sección de Identidad (Izquierda) */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Tarjeta de Usuario */}
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-              <div className="text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-1">Mi Perfil</h2>
-                <p className="text-gray-500 text-sm">Alumno de Koterie</p>
-                
-                {/* Admin Badge */}
-                <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4 4m5.618-4.018a11.955 11.955 0 0112 2.944-2.052-.382-3.018-3.018a11.955 11.955 0 01-8.618-3.042-2.052-.382-3.018-3.018z" />
-                    </svg>
-                    Versión Local Abierta
-                  </div>
-              </div>
-            </div>
-
-            {/* Selector de Intereses */}
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-4">Mis Intereses</h3>
-              
-              {/* Intereses Generales */}
-              <div className="mb-6">
-                <p className="text-sm text-gray-500 mb-3">Categorías generales:</p>
-                <div className="flex flex-wrap gap-2">
-                  {availableGeneralInterests.map(interest => (
-                    <button
-                      key={interest}
-                      onClick={() => handleGeneralInterestToggle(interest)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border-2 ${
-                        generalInterests.includes(interest)
-                          ? 'bg-gradient-to-r from-purple-600 to-purple-800 text-white border-purple-700 shadow-md'
-                          : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
-                      }`}
-                    >
-                      {interest}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tags Personalizados */}
-              <div>
-                <p className="text-sm text-gray-500 mb-3">Intereses específicos:</p>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {customTags.map(tag => (
-                    <span
-                      key={tag}
-                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-orange-500 to-pink-500 text-white border-2 border-orange-400 shadow-sm transition-all duration-300 ${
-                        animatingTag === tag ? 'scale-125 shadow-lg' : 'scale-100'
-                      }`}
-                    >
-                      {tag}
-                      <button
-                        onClick={() => removeCustomTag(tag)}
-                        className="ml-1 text-white hover:text-orange-200 transition-colors"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  value={customTagInput}
-                  onChange={(e) => setCustomTagInput(e.target.value)}
-                  onKeyDown={handleCustomTagInput}
-                  placeholder="Escribe intereses específicos (ej: Stranger Things, Radiohead)..."
-                  className="w-full px-4 py-2 rounded-2xl border border-gray-300 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
-                />
-                <p className="text-xs text-gray-400 mt-1">Presiona Enter o coma para agregar un tag</p>
-              </div>
-            </div>
-
-            {/* Bio Expandible */}
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-4">Sobre mí</h3>
-              <textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Contanos más sobre vos, tus objetivos con el inglés o lo que quieras compartir..."
-                className="w-full p-3 rounded-2xl border border-gray-300 text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 resize-none"
-                rows={4}
-              />
-            </div>
+          <div className="rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 sm:p-7">
+            <label className="text-sm font-semibold text-white/70">Nombre visible</label><input value={profile.name} onChange={e=>setProfile({...profile,name:e.target.value})} maxLength={80} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 outline-none focus:border-purple-400/35"/>
+            <label className="mt-5 block text-sm font-semibold text-white/70">Sobre mí</label><textarea value={profile.bio} onChange={e=>setProfile({...profile,bio:e.target.value})} maxLength={500} rows={4} placeholder="A short introduction: what you do, why you're learning English, what you enjoy..." className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 leading-6 outline-none focus:border-purple-400/35"/><p className="mt-1 text-right text-[11px] text-white/20">{profile.bio.length}/500</p>
           </div>
 
-          {/* Sección de Interacción (Derecha/Centro) */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Chat Interno con el Profe */}
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-600 to-purple-800 p-4 text-white">
-                <h3 className="font-bold">Chat con el Profesor</h3>
-                <p className="text-sm opacity-90">Comunicación directa con tu instructor</p>
-              </div>
-              
-              <div className="h-96 p-4 flex flex-col">
-                <div className="flex-1 space-y-4 overflow-y-auto mb-4">
-                  {chatMessages.map((message, index) => (
-                    <div key={index} className={`flex ${message.sender === 'student' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[70%] px-4 py-2 rounded-2xl ${
-                        message.sender === 'student'
-                          ? 'bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-br-sm'
-                          : message.sender === 'system'
-                          ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl border border-blue-400'
-                          : 'bg-gray-100 text-gray-800 rounded-bl-sm'
-                      }`}>
-                        <p className="text-sm">{message.text}</p>
-                        <p className={`text-xs mt-1 ${
-                          message.sender === 'student' ? 'text-purple-200' : 
-                          message.sender === 'system' ? 'text-blue-100' : 
-                          'text-gray-500'
-                        }`}>
-                          {message.time}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input 
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    className="flex-1 p-3 rounded-2xl border border-gray-300 bg-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200" 
-                    placeholder="Escribile al profe..." 
-                  />
-                  <button 
-                    onClick={handleSendMessage}
-                    className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 rounded-2xl font-medium hover:shadow-md transition-all duration-200"
-                  >
-                    Enviar
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div className="rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 sm:p-7"><h3 className="text-lg font-bold">Intereses</h3><p className="mt-1 mb-4 text-sm text-white/35">Se muestran en tu perfil y sirven para filtrar personas con gustos en común.</p><TagPicker options={interestOptions} value={profile.interests} onChange={interests=>setProfile({...profile,interests})}/></div>
 
-            {/* Widget de Próxima Clase */}
-            <div className="bg-gradient-to-r from-purple-600 to-purple-800 p-6 rounded-3xl text-white">
-              <h3 className="font-bold text-lg mb-4">Próxima Clase</h3>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
-                      <span className="text-lg font-bold">Mar</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">Martes 19:00hs</p>
-                      <p className="text-sm opacity-90">Prof. Sarah Mitchell</p>
-                    </div>
-                  </div>
-                  <p className="text-sm opacity-80">Academy B1 - Nivelación Inicial</p>
-                </div>
-                <button className="bg-white/20 backdrop-blur px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-colors">
-                  Unirse
-                </button>
-              </div>
-            </div>
+          <div className="rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 sm:p-7"><h3 className="text-lg font-bold">Temas que me gusta conversar</h3><p className="mt-1 mb-4 text-sm text-white/35">No tiene que ser lo mismo que tus intereses.</p><TagPicker options={topicOptions} value={profile.conversationTopics} onChange={conversationTopics=>setProfile({...profile,conversationTopics})}/></div>
 
-            {/* Módulo Social - Alumnos con Gustos Similares */}
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-4">Alumnos con gustos similares</h3>
-              <div className="space-y-3">
-                {matchingStudents.map(student => (
-                  <div key={student.id} className={`flex items-center justify-between p-4 rounded-2xl transition-all duration-200 ${
-                    student.hasSpecificMatch 
-                      ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200' 
-                      : 'bg-gray-50'
-                  }`}>
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm font-bold">{student.name.charAt(0)}</span>
-                        </div>
-                        {student.hasSpecificMatch && (
-                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-md">
-                            <span className="text-white text-xs font-bold">{'\ud83d\udd25'}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-gray-900">{student.name}</p>
-                          {student.hasSpecificMatch && (
-                            <span className="inline-flex items-center gap-1 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-medium">
-                              <span>{'\u2728'}</span>
-                              Match específico
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-500">
-                          {student.sharedCount} intereses en común
-                          {student.exactMatches.length > 0 && (
-                            <span className="text-orange-600 font-medium">
-                              {' '}({student.exactMatches.length} específicos: {student.exactMatches.join(', ')})
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleConnect(student.id)}
-                      disabled={connectionStatus[student.id]}
-                      className={`px-4 py-2 rounded-2xl text-sm font-medium transition-all duration-200 ${
-                        connectionStatus[student.id]
-                          ? 'bg-green-500 text-white flex items-center gap-2'
-                          : 'bg-gradient-to-r from-purple-600 to-purple-800 text-white hover:shadow-md'
-                      }`}
-                    >
-                      {connectionStatus[student.id] ? (
-                        <>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Conectado
-                        </>
-                      ) : (
-                        'Connect'
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+          <div className="rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 sm:p-7"><h3 className="text-lg font-bold">Objetivos</h3><p className="mt-1 text-sm text-white/35">Ejemplo: “Speak more confidently at work”.</p><div className="mt-4 flex flex-col gap-2 sm:flex-row"><input value={goalInput} onChange={e=>setGoalInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addGoal()}}} placeholder="Add a goal…" maxLength={80} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm outline-none focus:border-purple-400/35"/><button type="button" onClick={addGoal} className="flex min-h-11 items-center justify-center rounded-xl bg-white/10 px-4 text-white hover:bg-white/15 sm:min-h-0"><Plus className="h-4 w-4"/></button></div><div className="mt-3 flex flex-wrap gap-2">{profile.goals.map(goal=><span key={goal} className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-2 text-xs text-white/65">{goal}<button onClick={()=>setProfile({...profile,goals:profile.goals.filter(item=>item!==goal)})}><X className="h-3 w-3"/></button></span>)}</div></div>
+
+          <div className="grid gap-5 md:grid-cols-2"><div className="rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6"><h3 className="font-bold">Disponibilidad</h3><textarea value={profile.availability} onChange={e=>setProfile({...profile,availability:e.target.value})} maxLength={240} rows={4} placeholder="Example: Weekdays after 18:00, Saturday mornings…" className="mt-3 w-full resize-none rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm leading-6 outline-none focus:border-purple-400/35"/></div><div className="rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6"><h3 className="font-bold">Color de avatar</h3><div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-6">{Object.keys(colors).map(color=><button key={color} aria-label={color} onClick={()=>setProfile({...profile,avatarColor:color})} className={`h-10 rounded-xl bg-gradient-to-br ${colors[color]} ${profile.avatarColor===color?'ring-2 ring-white ring-offset-2 ring-offset-[#0a0f1e]':''}`}/>)}</div><p className="mt-4 text-xs leading-5 text-white/30">Por ahora usamos avatar por iniciales para no depender de almacenamiento de fotos. Más adelante podemos sumar foto real.</p></div></div>
+
+          {message&&<div className={`rounded-2xl border p-4 text-sm ${message.includes('guardado')?'border-emerald-500/20 bg-emerald-500/10 text-emerald-200':'border-amber-500/20 bg-amber-500/10 text-amber-100'}`}>{message}</div>}
+          <div className="flex justify-stretch sm:justify-end"><button onClick={save} disabled={saving} className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-600 px-6 py-3.5 font-bold transition hover:bg-purple-500 disabled:opacity-50 sm:w-auto">{saving?<><Save className="h-4 w-4"/> Saving…</>:<><Check className="h-4 w-4"/> Save profile</>}</button></div>
+        </section>
       </div>
     </div>
-  );
+  </main>
 }

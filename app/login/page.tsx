@@ -1,178 +1,55 @@
 "use client"
 
-// VERSIÓN LOCAL ABIERTA - LOGIN DESACTIVADO
-
-import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import { Mail, ArrowRight, Eye, EyeOff } from 'lucide-react'
+import { FormEvent, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, KeyRound, LogIn, Sparkles } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const params = useSearchParams()
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [credentialsError, setCredentialsError] = useState('')
+  const [code, setCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  // VERSIÓN LOCAL ABIERTA - REDIRIGIR DIRECTAMENTE
-  useEffect(() => {
-    router.push('/')
-  }, [router])
-
-  // Limpiar cookies si hay error de sesión
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const error = urlParams.get('error')
-    
-    if (error) {
-      // Limpiar cookies de sesión
-      document.cookie.split(";").forEach(c => {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      })
-      console.log('Session error detected, cookies cleared')
+  async function submit(event: FormEvent) {
+    event.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const response = await fetch('/api/member/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, code }) })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Could not sign in')
+      const next = params.get('next')
+      router.push(next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard')
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not sign in')
+    } finally {
+      setLoading(false)
     }
-  }, [])
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // VERSIÓN LOCAL ABIERTA - REDIRIGIR DIRECTAMENTE
-    router.push('/')
   }
 
-  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Logo/Brand */}
-        <div className="text-center mb-8">
-          <img 
-            src="/koterie-logo-transparent.png" 
-            alt="Koterie Language Studio" 
-            className="w-24 h-auto mx-auto mb-4"
-          />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Koterie Language Studio
-          </h1>
-          <p className="text-gray-600">
-            Tu club social premium de idiomas
-          </p>
-        </div>
+    <main className="min-h-screen bg-[#070b15] px-4 py-8 text-white sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-md">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-white/45 transition hover:text-white"><ArrowLeft className="h-4 w-4" /> Volver a Koterie</Link>
+        <div className="mt-7 rounded-[2rem] border border-white/[0.08] bg-white/[0.03] p-5 shadow-2xl shadow-black/30 sm:mt-10 sm:p-8">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-fuchsia-600"><Sparkles className="h-6 w-6" /></div>
+          <h1 className="mt-6 text-2xl font-bold sm:text-3xl">Acceso a Koterie</h1>
+          <p className="mt-3 text-sm leading-6 text-white/45">Ingresá con el email que tu profesora cargó y el código de acceso correspondiente. Tu nombre solo se pide si alguna vez habilitamos inscripción abierta. Tu email permanece privado.</p>
 
-        {/* Login Card */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Bienvenido de vuelta
-            </h2>
-            <p className="text-sm text-gray-600">
-              Ingresa para acceder a tu perfil y comunidad
-            </p>
-          </div>
-
-          
-          {/* Credentials Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                placeholder="tu@email.com"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent pr-12"
-                  placeholder="tu contraseña"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            {credentialsError && (
-              <div className="text-red-600 text-sm text-center">
-                {credentialsError}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="font-medium">
-                {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-              </span>
-              {isLoading && (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              )}
-            </button>
+          <form onSubmit={submit} className="mt-7 space-y-4">
+            <div><label className="mb-2 block text-sm font-medium text-white/65">Nombre <span className="text-white/30">(solo si te lo pide Koterie)</span></label><input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" maxLength={60} className="w-full rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 outline-none focus:border-purple-400/35" /></div>
+            <div><label className="mb-2 block text-sm font-medium text-white/65">Email</label><input value={email} onChange={(event) => setEmail(event.target.value)} type="email" autoComplete="email" required className="w-full rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 outline-none focus:border-purple-400/35" /></div>
+            <div><label className="mb-2 block text-sm font-medium text-white/65">Código de acceso</label><div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] px-3 focus-within:border-purple-400/35"><KeyRound className="h-4 w-4 text-white/30" /><input value={code} onChange={(event) => setCode(event.target.value)} type="password" autoComplete="current-password" required className="w-full bg-transparent px-3 py-3 outline-none" /></div></div>
+            {error && <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>}
+            <button disabled={loading} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 py-3.5 font-bold transition hover:brightness-110 disabled:opacity-50"><LogIn className="h-4 w-4" /> {loading ? 'Ingresando…' : 'Entrar a Koterie'}</button>
           </form>
-
-          {/* Botón adicional de inicio de sesión - funciona independientemente */}
-          <div className="mt-4">
-            <button
-              onClick={() => router.push('/')}
-              disabled={isLoading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl hover:from-green-700 hover:to-teal-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="font-medium">
-                {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión (Alternativo)'}
-              </span>
-              {isLoading && (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              )}
-            </button>
-          </div>
-
-          {/* Demo Accounts Info */}
-          <div className="mt-6 p-4 bg-purple-50 rounded-xl">
-            <p className="text-xs text-purple-700 font-medium mb-2">Cuentas de demo:</p>
-            <div className="text-xs text-purple-600 space-y-1">
-              <p>Admin: admin@koterie.com / admin123</p>
-              <p>Usuario: user@koterie.com / user123</p>
-              <p>Pagado: paid@koterie.com / paid123</p>
-            </div>
-          </div>
-
-          {/* Additional Options */}
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <p className="text-xs text-gray-500 text-center">
-              Al continuar, aceptas nuestros términos y condiciones
-            </p>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-600">
-            ¿Nuevo en Koterie?{' '}
-            <button className="text-purple-600 hover:text-purple-700 font-medium">
-              Regístrate aquí
-            </button>
-          </p>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

@@ -1,261 +1,36 @@
 "use client"
 
-import { useState } from "react"
-import { use } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { 
-  User, 
-  MessageCircle,
-  ArrowLeft,
-  Heart,
-  Home
-} from "lucide-react"
-import { ProfileHeader } from "@/components/profile/ProfileHeader"
-import { StudentChat } from "@/components/profile/StudentChat"
-import { ClassInfo } from "@/components/profile/ClassInfo"
-import { getStudentById, currentUser, Student } from "@/lib/mock-data"
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { ArrowLeft, MessageCircle, Sparkles } from 'lucide-react'
 
-interface PageProps {
-  params: Promise<{ id: string }>
+type Member = { id:string; name:string; role:'student'|'teacher'|'admin'; access:'academy'|'studio'; bio:string; goals:string[]; interests:string[]; conversationTopics:string[]; availability:string; avatarColor:string; joinedAt:string|null }
+const colors: Record<string,string>={violet:'from-violet-500 to-fuchsia-500',blue:'from-blue-500 to-cyan-400',pink:'from-pink-500 to-rose-400',emerald:'from-emerald-500 to-teal-400',amber:'from-amber-400 to-orange-500',cyan:'from-cyan-400 to-blue-500'}
+
+export default function MemberProfilePage() {
+  const params = useParams()
+  const id = String(params?.id || '')
+  const [member,setMember]=useState<Member|null>(null)
+  const [loading,setLoading]=useState(true)
+  const [error,setError]=useState('')
+
+  useEffect(()=>{
+    if(!id)return
+    fetch(`/api/community/members/${encodeURIComponent(id)}`,{cache:'no-store'})
+      .then(r=>r.ok?r.json():Promise.reject())
+      .then(data=>setMember(data.member))
+      .catch(()=>setError('No pudimos cargar este perfil.'))
+      .finally(()=>setLoading(false))
+  },[id])
+
+  if(loading) return <main className="min-h-screen bg-[#0a0f1e] px-4 py-16 text-center text-sm text-white/40">Loading member…</main>
+  if(!member) return <main className="min-h-screen bg-[#0a0f1e] px-4 py-16 text-center text-white"><p>{error}</p><Link href="/community" className="mt-4 inline-block text-purple-300">Back to community</Link></main>
+  const initials=member.name.split(/\s+/).map(part=>part[0]).join('').slice(0,2).toUpperCase()
+
+  return <main className="min-h-screen bg-[#0a0f1e] px-4 py-10 text-white sm:px-6 lg:px-8"><div className="mx-auto max-w-4xl"><Link href="/community" className="inline-flex items-center gap-2 text-sm font-semibold text-white/45 hover:text-white"><ArrowLeft className="h-4 w-4"/> Community</Link><section className="mt-8 overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.025]"><div className="h-28 bg-gradient-to-r from-purple-900/60 via-slate-900 to-blue-900/40"/><div className="px-6 pb-8 sm:px-9"><div className={`-mt-14 flex h-28 w-28 items-center justify-center rounded-[2rem] border-4 border-[#0a0f1e] bg-gradient-to-br ${colors[member.avatarColor]||colors.violet} text-3xl font-black shadow-xl`}>{initials}</div><div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div><div className="flex flex-wrap items-center gap-2"><h1 className="text-3xl font-bold">{member.name}</h1><span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] ${member.access==='studio'?'bg-pink-500/10 text-pink-300':'bg-blue-500/10 text-blue-300'}`}>{member.access}</span>{member.role!=='student'&&<span className="rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] text-amber-300">{member.role}</span>}</div>{member.bio?<p className="mt-4 max-w-2xl text-base leading-7 text-white/55">{member.bio}</p>:<p className="mt-4 text-sm text-white/30">This member has not added an introduction yet.</p>}</div><Link href="/academy-forum" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold hover:bg-white/10"><MessageCircle className="h-4 w-4"/> Start in the forum</Link></div>
+        <div className="mt-8 grid gap-5 md:grid-cols-2"><Block title="Interests" items={member.interests}/><Block title="Conversation topics" items={member.conversationTopics}/><Block title="Learning goals" items={member.goals}/><div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5"><div className="flex items-center gap-2 text-sm font-bold"><Sparkles className="h-4 w-4 text-purple-300"/> Availability</div><p className="mt-3 text-sm leading-6 text-white/45">{member.availability||'Not shared yet.'}</p></div></div>
+      </div></section></div></main>
 }
 
-export default function Page({ params }: PageProps) {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'overview' | 'chat'>('overview')
-  const [showNotification, setShowNotification] = useState(false)
-  const [userBio, setUserBio] = useState("")
-  
-  const resolvedParams = use(params)
-  const profileId = String(resolvedParams.id)
-  const profileData = getStudentById(profileId)
-  const isOwnProfile = profileId === 'current'
-
-  const handleConnect = () => {
-    setShowNotification(true)
-    setTimeout(() => {
-      setShowNotification(false)
-    }, 3000)
-  }
-
-  const handleMessage = () => {
-    setActiveTab('chat')
-  }
-
-  const handleGoBack = () => {
-    if (window.history.length > 2) {
-      window.history.back()
-    } else {
-      router.push('/community')
-    }
-  }
-
-  if (!profileData) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Perfil no encontrado
-          </h2>
-          <p className="text-gray-500 mb-4">
-            El perfil que buscas no existe o no está disponible.
-          </p>
-          <button
-            onClick={handleGoBack}
-            className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
-          >
-            Volver
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Notification */}
-      {showNotification && (
-        <div className="fixed top-4 right-4 z-50 px-4 py-2 bg-green-600 text-white rounded-full text-sm font-medium shadow-lg">
-          ¡Amistad solicitada!
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleGoBack}
-                className="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <Link
-                href="/"
-                className="p-2 rounded-xl bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors"
-                title="Volver al Inicio"
-              >
-                <Home className="w-5 h-5" />
-              </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">
-                    {isOwnProfile ? 'Mi Perfil' : `Perfil de ${profileData.nombre}`}
-                  </h1>
-                  <p className="text-sm text-gray-500">
-                    {isOwnProfile ? "Tu espacio personal" : "Perfil público"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {isOwnProfile ? (
-                <>
-                  <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                      activeTab === 'overview' 
-                        ? "bg-purple-600 text-white" 
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    <User className="w-4 h-4 inline mr-2" />
-                    Resumen
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('chat')}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                      activeTab === 'chat' 
-                        ? "bg-purple-600 text-white" 
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    <MessageCircle className="w-4 h-4 inline mr-2" />
-                    Chat
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={handleConnect}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors"
-                  >
-                    <Heart className="w-4 h-4 inline mr-2" />
-                    Conectar
-                  </button>
-                  <button
-                    onClick={handleMessage}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4 inline mr-2" />
-                    Mensaje
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Left Column - Profile Info */}
-          <div className="lg:col-span-1 space-y-6">
-            <ProfileHeader
-              userName={profileData.nombre}
-              userBio={profileData.bio}
-              onBioUpdate={setUserBio}
-              isEditable={isOwnProfile}
-            />
-            
-            {/* Interests */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-200">
-              <h3 className="font-bold text-gray-900 mb-4">Intereses</h3>
-              
-              <div className="mb-4">
-                <p className="text-sm text-gray-500 mb-2">Generales:</p>
-                <div className="flex flex-wrap gap-2">
-                  {profileData.interesesGenerales.map((interest, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium"
-                    >
-                      {interest}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-500 mb-2">Específicos:</p>
-                <div className="flex flex-wrap gap-2">
-                  {profileData.interesesEspecificos.map((interest, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium"
-                    >
-                      {interest}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Chat and Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {activeTab === 'overview' ? (
-              <>
-                {/* Chat */}
-                <StudentChat
-                  studentName={profileData.nombre}
-                  teacherName={isOwnProfile ? "Prof. Sarah Mitchell" : profileData.nombre}
-                  isCommunityChat={!isOwnProfile}
-                />
-                
-                {/* Class Info */}
-                {isOwnProfile && (
-                  <ClassInfo
-                    levelingStatus="pending"
-                    classDay="Martes"
-                    classTime="19:00"
-                    instructorName="Prof. Sarah Mitchell"
-                    className="Academy B1"
-                  />
-                )}
-              </>
-            ) : (
-              /* Chat Full Screen */
-              <div className="space-y-6">
-                <StudentChat
-                  studentName={profileData.nombre}
-                  teacherName={isOwnProfile ? "Prof. Sarah Mitchell" : profileData.nombre}
-                  isCommunityChat={!isOwnProfile}
-                />
-                
-                {isOwnProfile && (
-                  <div className="lg:hidden">
-                    <ClassInfo
-                      levelingStatus="pending"
-                      classDay="Martes"
-                      classTime="19:00"
-                      instructorName="Prof. Sarah Mitchell"
-                      className="Academy B1"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+function Block({title,items}:{title:string;items:string[]}){return <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5"><h2 className="text-sm font-bold">{title}</h2>{items.length?<div className="mt-3 flex flex-wrap gap-2">{items.map(item=><span key={item} className="rounded-full bg-white/5 px-3 py-2 text-xs text-white/60">{item}</span>)}</div>:<p className="mt-3 text-sm text-white/30">Nothing added yet.</p>}</div>}
