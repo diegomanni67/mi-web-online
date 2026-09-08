@@ -34,7 +34,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link href="/auth" className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-white sm:flex">
+            <Link href="/dashboard" className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-white sm:flex">
               <LogIn className="h-4 w-4" /> Área alumnos
             </Link>
             <a href={whatsapp} target="_blank" rel="noreferrer" className="hidden items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-purple-500/15 transition hover:from-violet-500 hover:to-purple-500 md:flex">
@@ -60,7 +60,7 @@ export function Header() {
               </Link>
             ))}
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              <Link href="/auth" onClick={closeMenu} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white">
+              <Link href="/dashboard" onClick={closeMenu} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white">
                 <LogIn className="h-4 w-4" /> Área alumnos
               </Link>
               <a href={whatsapp} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-3 font-bold text-white">
