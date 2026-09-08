@@ -1,61 +1,73 @@
 "use client"
 
-// VERSIÓN LOCAL ABIERTA - SIN LOGIN REQUERIDO
-
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
-import { User, Bell, Menu, X } from 'lucide-react'
+import { Menu, X, MessageCircle, LogIn } from 'lucide-react'
+
+const whatsapp = 'https://wa.me/5491162991211?text=Hola%20Ana%20Laura%2C%20vi%20Koterie%20y%20quiero%20consultar%20por%20las%20clases%20de%20ingl%C3%A9s.'
+
+const links = [
+  ['Clases', '/#pricing'],
+  ['Plataforma', '/#platform'],
+  ['Comunidad', '/#community'],
+  ['Seminarios', '/#seminars'],
+]
 
 export function Header() {
-  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const closeMenu = () => setIsMobileMenuOpen(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-blue-800/50">
+    <header className="sticky top-0 z-50 border-b border-blue-800/40 bg-slate-950/85 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img 
-              src="/koterie-logo-transparent.png" 
-              alt="Koterie Language Studio" 
-              className="h-20 w-auto"
-            />
+        <div className="flex h-16 items-center justify-between">
+          <Link href="/" onClick={closeMenu} className="flex items-center gap-3 transition-opacity hover:opacity-85">
+            <img src="/koterie-logo-transparent.png" alt="Koterie Language Studio" className="h-20 w-auto" />
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="#academy" className="text-white/50 hover:text-white transition-colors">Academy</Link>
-            <Link href="#community" className="text-white/50 hover:text-white transition-colors">Comunidad</Link>
-            <Link href="#pricing" className="text-white/50 hover:text-white transition-colors">Precios</Link>
+          <nav className="hidden items-center gap-7 lg:flex">
+            {links.map(([label, href]) => (
+              <Link key={label} href={href} className="text-sm font-medium text-white/55 transition-colors hover:text-white">
+                {label}
+              </Link>
+            ))}
           </nav>
 
-          {/* User Actions - VERSIÓN LOCAL ABIERTA */}
-          <div className="flex items-center gap-3">
-            <Link href="/auth" className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white text-slate-900 hover:bg-gray-100 transition-colors font-semibold">
-              <span className="hidden sm:inline">Inscribirse</span>
+          <div className="flex items-center gap-2">
+            <Link href="/auth" className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:bg-white/10 hover:text-white sm:flex">
+              <LogIn className="h-4 w-4" /> Área alumnos
             </Link>
-
-            {/* Mobile Menu Toggle */}
+            <a href={whatsapp} target="_blank" rel="noreferrer" className="hidden items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-purple-500/15 transition hover:from-violet-500 hover:to-purple-500 md:flex">
+              <MessageCircle className="h-4 w-4" /> Consultar
+            </a>
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-2xl bg-blue-800/50 text-blue-100 hover:bg-blue-700/50 transition-colors"
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
+              className="rounded-xl border border-white/10 bg-white/5 p-2 text-blue-100 transition hover:bg-white/10 lg:hidden"
+              aria-label="Abrir menú"
             >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-slate-900/90 backdrop-blur-md border-t border-blue-800/50">
-          <div className="px-4 py-3 space-y-2">
-            <Link href="#academy" className="block px-3 py-2 rounded-xl text-white/50 hover:text-white hover:bg-blue-800/30">Academy</Link>
-            <Link href="#community" className="block px-3 py-2 rounded-xl text-white/50 hover:text-white hover:bg-blue-800/30">Comunidad</Link>
-            <Link href="#pricing" className="block px-3 py-2 rounded-xl text-white/50 hover:text-white hover:bg-blue-800/30">Precios</Link>
-          </div>
+        <div className="border-t border-white/10 bg-slate-950/95 px-4 py-4 lg:hidden">
+          <nav className="mx-auto grid max-w-7xl gap-1">
+            {links.map(([label, href]) => (
+              <Link key={label} href={href} onClick={closeMenu} className="rounded-xl px-3 py-3 font-medium text-white/70 hover:bg-white/5 hover:text-white">
+                {label}
+              </Link>
+            ))}
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <Link href="/auth" onClick={closeMenu} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white">
+                <LogIn className="h-4 w-4" /> Área alumnos
+              </Link>
+              <a href={whatsapp} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-3 font-bold text-white">
+                <MessageCircle className="h-4 w-4" /> Consultar por WhatsApp
+              </a>
+            </div>
+          </nav>
         </div>
       )}
     </header>
