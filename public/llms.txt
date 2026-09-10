@@ -1,0 +1,21 @@
+# Koterie Language Studio
+
+Koterie is an online English-learning experience that combines live classes with continued practice, community activities and digital tools between classes.
+
+## Public pages
+- Home: https://mi-web-online.vercel.app/
+- Seminars: https://mi-web-online.vercel.app/seminars
+- Classes and pricing: https://mi-web-online.vercel.app/pricing
+
+## Main offering
+- Live online English classes, both group and individual.
+- Academy for learners consolidating their English.
+- Studio for more advanced conversation and fluency.
+- Activities, speaking practice and community between lessons.
+- Special English-language seminars.
+
+## Access
+Student dashboards, profiles, forums, practice areas and administration pages are private and require authentication. They should not be indexed or treated as public documentation.
+
+## Language
+The public website is primarily in Spanish. Learning activities and seminars may be in English.
