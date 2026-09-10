@@ -41,10 +41,8 @@ function hydrateReply(raw: any): ForumReply {
 }
 
 class ForumStorage {
-  constructor(private forumType: 'academy' | 'studio' = 'academy') {}
-
   async getThreads(category?: string): Promise<ForumThread[]> {
-    const params = new URLSearchParams({ space: this.forumType })
+    const params = new URLSearchParams({ space: 'all' })
     if (category) params.set('category', category)
     const response = await fetch(`/api/forum/threads?${params.toString()}`, { cache: 'no-store' })
     if (!response.ok) throw new Error('Could not load discussions')
@@ -56,7 +54,7 @@ class ForumStorage {
     const response = await fetch('/api/forum/threads', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        space: this.forumType, category: thread.category,
+        space: 'academy', category: thread.category,
         title: thread.title, content: thread.content, tags: thread.tags,
       }),
     })
@@ -101,6 +99,6 @@ class ForumStorage {
   async addMaterialLink(): Promise<void> { throw new Error('Materials are managed by teachers') }
 }
 
-export const forumStorage = new ForumStorage('academy')
-export const academyForumStorage = new ForumStorage('academy')
-export const studioForumStorage = new ForumStorage('studio')
+export const forumStorage = new ForumStorage()
+export const academyForumStorage = forumStorage
+export const studioForumStorage = forumStorage
