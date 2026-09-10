@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { academyForumStorage, studioForumStorage, ForumThread } from "@/lib/forum-storage"
-import { useMember } from "@/components/member/useMember"
+import { forumStorage, ForumThread } from "@/lib/forum-storage"
 import { Eye, MessageCircle, Pin, Plus, Search } from "lucide-react"
 
 interface ForumThreadViewProps {
@@ -11,13 +10,9 @@ interface ForumThreadViewProps {
   onBack: () => void
   onThreadClick: (threadId: string) => void
   onCreateThread: () => void
-  forumType?: 'academy' | 'studio'
 }
 
-export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClick, onCreateThread, forumType = 'academy' }: ForumThreadViewProps) {
-  const forumStorage = forumType === 'academy' ? academyForumStorage : studioForumStorage
-  const { member, loading: memberLoading } = useMember()
-  const canPost = forumType === 'academy' || member?.access === 'studio' || member?.role === 'teacher' || member?.role === 'admin'
+export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClick, onCreateThread }: ForumThreadViewProps) {
   const [threads, setThreads] = useState<ForumThread[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'views'>('latest')
@@ -33,7 +28,7 @@ export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClic
       .catch(() => active && setError('No pudimos cargar las conversaciones.'))
       .finally(() => active && setLoading(false))
     return () => { active = false }
-  }, [categoryId, forumType])
+  }, [categoryId])
 
   const visibleThreads = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()
@@ -55,8 +50,7 @@ export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClic
     if (minutes < 60) return minutes < 2 ? 'just now' : `${minutes} min ago`
     const hours = Math.floor(minutes / 60)
     if (hours < 24) return `${hours}h ago`
-    const days = Math.floor(hours / 24)
-    return `${days}d ago`
+    return `${Math.floor(hours / 24)}d ago`
   }
 
   async function openThread(id: string) {
@@ -71,19 +65,13 @@ export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClic
 
         <div className="mt-7 flex flex-col gap-5 border-b border-white/[0.07] pb-7 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-purple-300">{forumType === 'studio' ? 'Studio' : 'Academy'}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-purple-300">Koterie forum</p>
             <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{categoryName}</h1>
-            <p className="mt-2 text-sm text-white/40">Real conversations from the Koterie community.</p>
+            <p className="mt-2 text-sm text-white/40">One shared conversation space for the whole community.</p>
           </div>
-          {memberLoading ? (
-            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/35">Checking access…</div>
-          ) : canPost ? (
-            <button onClick={onCreateThread} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 py-3 font-bold text-white transition hover:brightness-110">
-              <Plus className="h-4 w-4" /> Start a conversation
-            </button>
-          ) : (
-            <div className="rounded-xl border border-pink-500/20 bg-pink-500/10 px-4 py-3 text-sm text-pink-200">Studio is read-only with Academy access.</div>
-          )}
+          <button onClick={onCreateThread} className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 py-3 font-bold text-white transition hover:brightness-110">
+            <Plus className="h-4 w-4" /> Start a conversation
+          </button>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 md:flex-row">
@@ -105,8 +93,8 @@ export function ForumThreadView({ categoryId, categoryName, onBack, onThreadClic
             <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-12 text-center">
               <MessageCircle className="mx-auto h-10 w-10 text-white/20" />
               <h2 className="mt-4 text-xl font-bold">No conversations yet.</h2>
-              <p className="mt-2 text-sm text-white/40">Start the first conversation in this topic and give the community something to respond to.</p>
-              {canPost && <button onClick={onCreateThread} className="mt-6 rounded-xl bg-purple-600 px-5 py-3 text-sm font-bold transition hover:bg-purple-500">Start the first one</button>}
+              <p className="mt-2 text-sm text-white/40">Start the first conversation in this topic and give everyone something to respond to.</p>
+              <button onClick={onCreateThread} className="mt-6 rounded-xl bg-purple-600 px-5 py-3 text-sm font-bold transition hover:bg-purple-500">Start the first one</button>
             </div>
           )}
 
