@@ -12,6 +12,7 @@ export default function robots(): MetadataRoute.Robots {
           '/admin/',
           '/api/',
           '/dashboard/',
+          '/forum/',
           '/academy-forum/',
           '/studio-forum/',
           '/practice/',
