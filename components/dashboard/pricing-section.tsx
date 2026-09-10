@@ -1,5 +1,6 @@
 "use client"
 
+import { track } from '@vercel/analytics'
 import { ArrowRight, Check, Sparkles } from 'lucide-react'
 
 const whatsappBase = 'https://wa.me/5491162991211?text='
@@ -30,6 +31,7 @@ const plans = [
 export function PricingSection() {
   function openWhatsApp(plan: string) {
     const message = `Hola Ana Laura, vi Koterie y quiero consultar por ${plan.toLowerCase()}.`
+    track('whatsapp_click', { source: 'pricing', plan })
     window.open(`${whatsappBase}${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
   }
 
