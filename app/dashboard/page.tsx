@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Bot, CalendarDays, Download, FileText, GraduationCap, Loader2, MessageCircle, Mic2, Rocket, Sparkles, UserRound, Users } from 'lucide-react'
+import { ArrowRight, Bot, CalendarDays, Download, FileText, Loader2, MessageCircle, Mic2, Sparkles, UserRound, Users } from 'lucide-react'
 
 const whatsapp = 'https://wa.me/5491162991211?text=Hola%20Ana%20Laura%2C%20soy%20alumno%2Fa%20de%20Koterie%20y%20quiero%20consultar%20por%20mi%20pr%C3%B3xima%20clase.'
 const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
@@ -19,11 +19,20 @@ type Overview = {
   plannedSeminarIdea:{id:number;title:string;description:string;level:string;label:string}|null
 }
 
+type ForumPreview = {
+  id:string
+  title:string
+  author:string
+  replies:number
+  updatedAt:string
+}
+
 const fallbackActivity = { id: 'local', title: 'Keep English moving', prompt: 'Tell someone about one thing that happened this week and ask them a follow-up question.' }
 const registrationLabel:Record<string,string>={pending:'Awaiting confirmation',confirmed:'Confirmed',waitlist:'Waiting list',cancelled:'Cancelled'}
 
 export default function DashboardPage() {
   const [overview, setOverview] = useState<Overview | null>(null)
+  const [forumThreads, setForumThreads] = useState<ForumPreview[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [materialError, setMaterialError] = useState('')
@@ -48,10 +57,18 @@ export default function DashboardPage() {
   }
 
   useEffect(() => { void loadOverview() }, [])
+  useEffect(() => {
+    fetch('/api/forum/threads?space=all', { cache:'no-store' })
+      .then(async response => response.ok ? response.json() : null)
+      .then(data => setForumThreads(data?.threads || []))
+      .catch(() => setForumThreads([]))
+  }, [])
 
   const activity = overview?.activities?.[0] || fallbackActivity
   const group = overview?.groups?.[0] || null
   const seminarRegistration = overview?.seminarRegistrations?.find(item=>item.registration_status!=='cancelled') || null
+  const unansweredThreads = forumThreads.filter(thread => Number(thread.replies) === 0).length
+  const recentThreads = forumThreads.slice(0, 3)
   const classLabel = useMemo(() => {
     if (!group) return null
     const time = group.start_time?.slice(0,5) || ''
@@ -93,7 +110,7 @@ export default function DashboardPage() {
         {error && <div className="mt-6 flex flex-col gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-100 sm:flex-row sm:items-center sm:justify-between"><span>{error}</span><button onClick={()=>void loadOverview()} className="shrink-0 rounded-lg border border-red-300/20 bg-white/5 px-3 py-2 font-bold hover:bg-white/10">Reintentar</button></div>}
 
         <section className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <article className="rounded-2xl border border-white/[.07] bg-white/[.025] p-5"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Your space</p><p className="mt-3 text-2xl font-bold capitalize">{overview?.member?.access||'—'}</p></article>
+          <article className="rounded-2xl border border-white/[.07] bg-white/[.025] p-5"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Your learning path</p><p className="mt-3 text-2xl font-bold capitalize">{overview?.member?.access||'—'}</p></article>
           <article className="rounded-2xl border border-white/[.07] bg-white/[.025] p-5"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Profile</p><p className="mt-3 text-2xl font-bold">{overview?.profile?.completion??0}%</p><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-cyan-400" style={{width:`${overview?.profile?.completion??0}%`}}/></div></article>
           <article className="rounded-2xl border border-white/[.07] bg-white/[.025] p-5"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Your classes</p><p className="mt-3 text-2xl font-bold">{overview?.groups?.length??0}</p><p className="mt-1 text-xs text-white/35">active assignment{overview?.groups?.length===1?'':'s'}</p></article>
           <article className="rounded-2xl border border-white/[.07] bg-white/[.025] p-5"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Material</p><p className="mt-3 text-2xl font-bold">{overview?.recentMaterials?.length??0}</p><p className="mt-1 text-xs text-white/35">recent resources</p></article>
@@ -102,7 +119,7 @@ export default function DashboardPage() {
         <section className="mt-5 grid gap-5 lg:grid-cols-[1.25fr_.75fr]">
           <article className="rounded-[2rem] border border-purple-500/20 bg-gradient-to-br from-purple-950/60 via-slate-950 to-slate-950 p-7 sm:p-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-purple-300">This week's mission</p><h2 className="mt-3 text-3xl font-bold">{activity.title}</h2><p className="mt-4 max-w-2xl text-lg leading-8 text-white/55">{activity.prompt}</p></div><div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-purple-500/15 text-purple-300"><Mic2 className="h-7 w-7" /></div></div>
-            <div className="mt-7 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap"><Link href="/practice" className="inline-flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-bold transition hover:bg-purple-500">Practice <ArrowRight className="h-4 w-4" /></Link><Link href="/academy-forum" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold transition hover:bg-white/10">Share in Academy</Link></div>
+            <div className="mt-7 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap"><Link href="/practice" className="inline-flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-bold transition hover:bg-purple-500">Practice <ArrowRight className="h-4 w-4" /></Link><Link href="/forum" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold transition hover:bg-white/10">Share with the community</Link></div>
           </article>
 
           <article className="rounded-[2rem] border border-white/[0.08] bg-white/[0.03] p-7">
@@ -111,12 +128,25 @@ export default function DashboardPage() {
           </article>
         </section>
 
-        <section className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-          <Link href="/academy-forum" className="group rounded-3xl border border-blue-500/15 bg-blue-500/[0.045] p-6 transition hover:-translate-y-1 hover:border-blue-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-300"><GraduationCap className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">Academy</h3><p className="mt-2 text-sm leading-6 text-white/45">Practice, questions and community.</p></Link>
-          <Link href="/studio-forum" className="group rounded-3xl border border-pink-500/15 bg-pink-500/[0.045] p-6 transition hover:-translate-y-1 hover:border-pink-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-500/15 text-pink-300"><Rocket className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">Studio</h3><p className="mt-2 text-sm leading-6 text-white/45">Advanced conversation. Academy members can read; Studio members can participate.</p></Link>
-          <Link href="/practice" className="group rounded-3xl border border-purple-500/15 bg-purple-500/[0.045] p-6 transition hover:-translate-y-1 hover:border-purple-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-500/15 text-purple-300"><Bot className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">Practice Lab</h3><p className="mt-2 text-sm leading-6 text-white/45">Speaking, listening and guided practice between classes.</p></Link>
-          <Link href="/community" className="group rounded-3xl border border-emerald-500/15 bg-emerald-500/[0.04] p-6 transition hover:-translate-y-1 hover:border-emerald-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300"><Users className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">Community</h3><p className="mt-2 text-sm leading-6 text-white/45">Find people through real interests and topics.</p></Link>
-          <Link href="/profile" className="group rounded-3xl border border-cyan-500/15 bg-cyan-500/[0.04] p-6 transition hover:-translate-y-1 hover:border-cyan-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-300"><UserRound className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">My profile</h3><p className="mt-2 text-sm leading-6 text-white/45">Goals, interests and conversation topics.</p></Link>
+        <section className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_.65fr]">
+          <Link href="/forum" className="group relative overflow-hidden rounded-[2rem] border border-purple-500/25 bg-gradient-to-br from-purple-950/70 via-[#121229] to-[#0d1425] p-7 transition hover:-translate-y-1 hover:border-purple-400/40 sm:p-8">
+            <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-fuchsia-500/10 blur-3xl" />
+            <div className="relative">
+              <div className="flex items-start justify-between gap-5"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-purple-300">Koterie Forum</p><h2 className="mt-3 text-3xl font-bold sm:text-4xl">One community. More conversations.</h2><p className="mt-4 max-w-2xl text-base leading-7 text-white/52">Academy and Studio meet in the same place. Ask something, share an idea, answer someone and keep English alive between classes.</p></div><div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-purple-500/20 text-purple-200"><MessageCircle className="h-7 w-7" /></div></div>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Conversations</p><p className="mt-2 text-2xl font-bold">{forumThreads.length}</p></div>
+                <div className="rounded-2xl border border-white/[0.07] bg-white/[0.04] p-4"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Waiting for a reply</p><p className="mt-2 text-2xl font-bold">{unansweredThreads}</p></div>
+              </div>
+              {recentThreads.length > 0 ? <div className="mt-6"><p className="text-xs font-bold uppercase tracking-[.12em] text-white/30">Recent conversations</p><div className="mt-3 space-y-2">{recentThreads.map(thread=><div key={thread.id} className="flex items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-black/10 px-4 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-white/80">{thread.title}</p><p className="mt-1 text-xs text-white/30">by {thread.author}</p></div><span className="shrink-0 text-xs font-semibold text-purple-300">{thread.replies} repl{thread.replies===1?'y':'ies'}</span></div>)}</div></div> : <div className="mt-6 rounded-2xl border border-dashed border-white/10 p-5"><p className="font-semibold">The forum is ready for its first conversations.</p><p className="mt-1 text-sm text-white/40">Be the person who gives everyone else something to reply to.</p></div>}
+              <span className="mt-7 inline-flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-3 font-bold text-white transition group-hover:bg-purple-500">Join the conversation <ArrowRight className="h-4 w-4" /></span>
+            </div>
+          </Link>
+
+          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+            <Link href="/practice" className="group rounded-3xl border border-purple-500/15 bg-purple-500/[0.045] p-6 transition hover:-translate-y-1 hover:border-purple-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-500/15 text-purple-300"><Bot className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">Practice Lab</h3><p className="mt-2 text-sm leading-6 text-white/45">Speaking, listening and guided practice between classes.</p></Link>
+            <Link href="/community" className="group rounded-3xl border border-emerald-500/15 bg-emerald-500/[0.04] p-6 transition hover:-translate-y-1 hover:border-emerald-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300"><Users className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">Find people</h3><p className="mt-2 text-sm leading-6 text-white/45">Discover classmates through real interests and conversation topics.</p></Link>
+            <Link href="/profile" className="group rounded-3xl border border-cyan-500/15 bg-cyan-500/[0.04] p-6 transition hover:-translate-y-1 hover:border-cyan-400/30"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-300"><UserRound className="h-5 w-5" /></div><h3 className="mt-5 text-xl font-bold">My profile</h3><p className="mt-2 text-sm leading-6 text-white/45">Goals, interests and conversation topics.</p></Link>
+          </div>
         </section>
 
         <section className="mt-5 grid gap-5 lg:grid-cols-2">
@@ -125,7 +155,7 @@ export default function DashboardPage() {
           <article className="rounded-[2rem] border border-purple-500/15 bg-purple-500/[0.035] p-7 sm:p-8"><div className="flex items-center gap-3"><Sparkles className="h-5 w-5 text-purple-300"/><h2 className="text-xl font-bold">On the horizon</h2></div>{overview?.plannedSeminarIdea?<><span className="mt-5 inline-flex rounded-full border border-purple-400/20 bg-purple-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] text-purple-200">{overview.plannedSeminarIdea.label}</span><h3 className="mt-4 text-2xl font-bold">{overview.plannedSeminarIdea.title}</h3><p className="mt-3 text-sm leading-6 text-white/45">{overview.plannedSeminarIdea.description}</p><p className="mt-4 text-xs font-bold text-purple-300">Suggested level: {overview.plannedSeminarIdea.level}</p></>:<p className="mt-5 text-sm text-white/40">No future seminar idea is currently highlighted.</p>}</article>
         </section>
 
-        <section className="mt-5 rounded-[2rem] border border-white/[.08] bg-white/[.025] p-7 sm:p-8">{materialError&&<div className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-100">{materialError}</div>}<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><div className="flex items-center gap-3"><FileText className="h-5 w-5 text-cyan-300"/><h2 className="text-xl font-bold">Recent material for you</h2></div><p className="mt-2 text-sm text-white/40">Only resources available to your Academy/Studio access appear here.</p></div><Link href={overview?.member?.access==='studio'?'/studio-forum':'/academy-forum'} className="text-sm font-bold text-cyan-300">Open your space →</Link></div>{overview?.recentMaterials?.length?<div className="mt-5 grid gap-3 md:grid-cols-3">{overview.recentMaterials.map(item=><button key={item.id} onClick={()=>openMaterial(item.id)} className="rounded-2xl border border-white/[.07] bg-white/[.03] p-5 text-left transition hover:bg-white/[.05]"><p className="text-xs font-bold uppercase tracking-[.12em] text-cyan-300">{item.category.replace('-',' ')}</p><h3 className="mt-3 font-bold">{item.title}</h3>{item.description&&<p className="mt-2 line-clamp-2 text-sm leading-6 text-white/40">{item.description}</p>}<span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300">Open <Download className="h-3.5 w-3.5"/></span></button>)}</div>:<div className="mt-5 rounded-xl border border-dashed border-white/10 p-5 text-sm text-white/35 sm:p-6">No teacher material has been published for your space yet.</div>}</section>
+        <section className="mt-5 rounded-[2rem] border border-white/[.08] bg-white/[.025] p-7 sm:p-8">{materialError&&<div className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-100">{materialError}</div>}<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><div className="flex items-center gap-3"><FileText className="h-5 w-5 text-cyan-300"/><h2 className="text-xl font-bold">Recent material for you</h2></div><p className="mt-2 text-sm text-white/40">Resources selected for your current learning access.</p></div><Link href="/forum" className="text-sm font-bold text-cyan-300">Discuss in the community →</Link></div>{overview?.recentMaterials?.length?<div className="mt-5 grid gap-3 md:grid-cols-3">{overview.recentMaterials.map(item=><button key={item.id} onClick={()=>openMaterial(item.id)} className="rounded-2xl border border-white/[.07] bg-white/[.03] p-5 text-left transition hover:bg-white/[.05]"><p className="text-xs font-bold uppercase tracking-[.12em] text-cyan-300">{item.category.replace('-',' ')}</p><h3 className="mt-3 font-bold">{item.title}</h3>{item.description&&<p className="mt-2 line-clamp-2 text-sm leading-6 text-white/40">{item.description}</p>}<span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-cyan-300">Open <Download className="h-3.5 w-3.5"/></span></button>)}</div>:<div className="mt-5 rounded-xl border border-dashed border-white/10 p-5 text-sm text-white/35 sm:p-6">No teacher material has been published for your learning path yet.</div>}</section>
       </div>
     </main>
   )
