@@ -1,5 +1,5 @@
-import { ForumCategoriesDashboard } from '@/components/forum/ForumCategoriesDashboard'
+import { redirect } from 'next/navigation'
 
 export default function StudioForumPage() {
-  return <ForumCategoriesDashboard forumType="studio" />
+  redirect('/forum')
 }
