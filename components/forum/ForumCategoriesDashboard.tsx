@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from 'react'
-import Link from 'next/link'
 import {
   BookOpen,
   Film,
@@ -17,7 +16,6 @@ import { CreateThreadForm } from './CreateThreadForm'
 import { ThreadDetail } from './ThreadDetail'
 import { MaterialLibrary } from './MaterialLibrary'
 
-type ForumType = 'academy' | 'studio'
 type View = 'categories' | 'threads' | 'create' | 'detail' | 'material'
 
 const categories = [
@@ -31,41 +29,34 @@ const categories = [
   { id:'material', title:'Material', description:'Resources selected and shared by the Koterie teachers.', icon:BookOpen, image:'/images/forum/Material.jpeg', material:true },
 ]
 
-export function ForumCategoriesDashboard({ forumType='academy' }: { forumType?: ForumType }) {
+export function ForumCategoriesDashboard() {
   const [view,setView] = useState<View>('categories')
   const [categoryId,setCategoryId] = useState('')
   const [threadId,setThreadId] = useState<string | null>(null)
   const category = categories.find((item)=>item.id===categoryId)
-  const studio = forumType === 'studio'
 
   if (view === 'threads' && category) {
-    return <ForumThreadView categoryId={category.id} categoryName={category.title} forumType={forumType} onBack={()=>{setView('categories');setCategoryId('')}} onThreadClick={(id)=>{setThreadId(id);setView('detail')}} onCreateThread={()=>setView('create')} />
+    return <ForumThreadView categoryId={category.id} categoryName={category.title} onBack={()=>{setView('categories');setCategoryId('')}} onThreadClick={(id)=>{setThreadId(id);setView('detail')}} onCreateThread={()=>setView('create')} />
   }
 
   if (view === 'create' && category) {
-    return <CreateThreadForm categoryId={category.id} categoryName={category.title} forumType={forumType} onBack={()=>setView('threads')} onThreadCreated={(id)=>{setThreadId(id);setView('detail')}} />
+    return <CreateThreadForm categoryId={category.id} categoryName={category.title} onBack={()=>setView('threads')} onThreadCreated={(id)=>{setThreadId(id);setView('detail')}} />
   }
 
   if (view === 'detail' && threadId) {
-    return <ThreadDetail threadId={threadId} categoryName={category?.title} forumType={forumType} onBack={()=>{setThreadId(null);setView('threads')}} />
+    return <ThreadDetail threadId={threadId} categoryName={category?.title} onBack={()=>{setThreadId(null);setView('threads')}} />
   }
 
   if (view === 'material') return <MaterialLibrary onBack={()=>setView('categories')} />
-
 
   return (
     <main className="min-h-screen bg-[#0a0f1e] px-4 py-10 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl">
-          <div className={`inline-flex rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] ${studio?'border-pink-500/25 bg-pink-500/10 text-pink-300':'border-blue-500/25 bg-blue-500/10 text-blue-300'}`}>{studio?'Studio · advanced community':'Academy · learning community'}</div>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-5xl">Choose something worth talking about.</h1>
-          <p className="mt-4 text-lg leading-8 text-white/48">{studio?'Use English to develop ideas, debate and help keep the whole Koterie community moving.':'Ask, answer, share interests and use the English you are learning without pressure.'}</p>
-          {!studio && <p className="mt-3 text-sm text-white/35">Academy members can also read Studio discussions. Participation in Studio is reserved for Studio members and teachers.</p>}
-          <div className="mt-5">
-            <Link href={studio?'/academy-forum':'/studio-forum'} className={`inline-flex rounded-xl border px-4 py-2.5 text-sm font-bold transition ${studio?'border-blue-400/20 bg-blue-400/[0.07] text-blue-200 hover:bg-blue-400/10':'border-pink-400/20 bg-pink-400/[0.07] text-pink-200 hover:bg-pink-400/10'}`}>
-              {studio?'Go to Academy and help the community →':'Read Studio discussions →'}
-            </Link>
-          </div>
+          <div className="inline-flex rounded-full border border-purple-500/25 bg-purple-500/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-purple-300">Koterie community</div>
+          <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-5xl">One community. More conversations.</h1>
+          <p className="mt-4 text-lg leading-8 text-white/48">Everyone shares the same forum. Choose a topic, start something worth replying to and keep the English moving together.</p>
+          <p className="mt-3 text-sm text-white/35">Different levels are welcome in the same conversation. The goal is participation, not separation.</p>
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
